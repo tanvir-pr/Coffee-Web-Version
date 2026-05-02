@@ -1,0 +1,9 @@
+{
+  "name": "@crema/api-types",
+  "version": "0.0.0",
+  "private": true,
+  "types": "./src/schema.ts",
+  "exports": {
+    ".": "./src/schema.ts"
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Crema API",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "summary": "Ready",
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/config": {
+      "get": {
+        "summary": "Get Config",
+        "operationId": "get_config_v1_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ConfigFlags": {
+        "properties": {
+          "anim": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Anim"
+          }
+        },
+        "type": "object",
+        "required": [
+          "anim"
+        ],
+        "title": "ConfigFlags"
+      },
+      "ConfigResponse": {
+        "properties": {
+          "season": {
+            "type": "string",
+            "title": "Season"
+          },
+          "kill_switch": {
+            "type": "boolean",
+            "title": "Kill Switch"
+          },
+          "flags": {
+            "$ref": "#/components/schemas/ConfigFlags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "season",
+          "kill_switch",
+          "flags"
+        ],
+        "title": "ConfigResponse"
+      }
+    }
+  }
+}

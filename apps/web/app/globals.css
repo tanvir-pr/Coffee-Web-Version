@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+/*
+  Matcha 500 #8DBF6A under Espresso 900 #2B1A12 is 7.78:1.
+  TK-C02 printed 10.0:1. The pair still passes AAA. Hex values are unchanged.
+*/
+:root {
+  --crema-bg: #fbf6ef;
+  --crema-text: #2b1a12;
+  --crema-text-muted: #7a6455;
+  --crema-surface: #ffffff;
+  --crema-crema: #e9c9a0;
+  --crema-primary: #d98a3d;
+  --crema-on-primary: #2b1a12;
+  --crema-matcha: #8dbf6a;
+  --crema-berry: #9e2f63;
+  --crema-glass: rgba(255, 250, 244, 0.55);
+  --crema-glass-solid: rgba(255, 250, 244, 0.88);
+  --crema-rim: rgba(255, 255, 255, 0.6);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --crema-bg: #140e0b;
+  --crema-text: #f7eee3;
+  --crema-text-muted: #9c8676;
+  --crema-surface: #211813;
+  --crema-crema: #ebc9a0;
+  --crema-primary: #f2a65a;
+  --crema-on-primary: #140e0b;
+  --crema-matcha: #a8d68a;
+  --crema-berry: #ee86b8;
+  --crema-glass: rgba(33, 24, 19, 0.52);
+  --crema-glass-solid: rgba(33, 24, 19, 0.88);
+  --crema-rim: rgba(255, 240, 225, 0.12);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --color-background: var(--crema-bg);
+  --color-foreground: var(--crema-text);
+  --color-muted: var(--crema-text-muted);
+  --color-surface: var(--crema-surface);
+  --color-crema: var(--crema-crema);
+  --color-primary: var(--crema-primary);
+  --color-on-primary: var(--crema-on-primary);
+  --color-matcha: var(--crema-matcha);
+  --color-berry: var(--crema-berry);
+}
+
+html {
+  background: var(--crema-bg);
+  color: var(--crema-text);
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse at 18% -10%, color-mix(in srgb, var(--crema-primary) 42%, transparent), transparent 52%),
+    radial-gradient(ellipse at 100% 100%, color-mix(in srgb, var(--crema-berry) 24%, transparent), transparent 46%),
+    var(--crema-bg);
+}
+
+.glass-surface {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid var(--crema-rim);
+  background: var(--crema-glass);
+  box-shadow: 0 24px 60px rgba(43, 26, 18, 0.12);
+}
+
+.glass-surface[data-glass="filter"] {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.glass-surface[data-glass="lite"] {
+  background: color-mix(in srgb, var(--crema-glass) 82%, var(--crema-surface));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-surface[data-glass="solid"] {
+  background: var(--crema-glass-solid);
+}
+
+.glass-surface[data-glass="solid"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+
+:focus-visible {
+  outline: 2px solid var(--crema-text);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--crema-primary) 55%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-surface {
+    transition: none;
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "crema",
+  "private": true,
+  "packageManager": "pnpm@10.18.0",
+  "scripts": {
+    "dev": "corepack pnpm --filter web dev",
+    "dev:api": "uv run --directory services/api uvicorn app.main:app --reload --host 127.0.0.1 --port 8000",
+    "db:up": "docker compose -f infra/docker-compose.yml up -d",
+    "lint": "corepack pnpm --filter web lint && uv run --directory services/api ruff check app tests && uv run --directory services/api ruff format --check app tests alembic",
+    "typecheck": "corepack pnpm --filter web typecheck && uv run --directory services/api mypy app",
+    "test": "corepack pnpm --filter web test && uv run --directory services/api pytest -q",
+    "openapi:sync": "uv run --directory services/api python -m app.export_openapi && openapi-typescript packages/api-types/openapi.json -o packages/api-types/src/schema.ts",
+    "openapi:check": "node scripts/check-openapi.mjs"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.10.1",
+    "turbo": "^2.5.8",
+    "typescript": "5.9.3"
+  }
+}
