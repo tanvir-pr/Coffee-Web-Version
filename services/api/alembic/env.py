@@ -7,7 +7,10 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import get_settings
+from app.db import models as _models
 from app.db.base import Base
+
+_ = _models
 
 config = context.config
 if config.config_file_name is not None:

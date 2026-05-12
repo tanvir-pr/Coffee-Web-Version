@@ -60,6 +60,67 @@
           }
         }
       }
+    },
+    "/v1/menu": {
+      "get": {
+        "summary": "Get Menu",
+        "operationId": "get_menu_v1_menu_get",
+        "parameters": [
+          {
+            "name": "store",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "riverside",
+              "title": "Store"
+            }
+          },
+          {
+            "name": "daypart",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "morning",
+                    "afternoon",
+                    "night"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Daypart"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -101,6 +162,243 @@
           "flags"
         ],
         "title": "ConfigResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MenuCategoryOut": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/MenuSort"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/MenuProductOut"
+            },
+            "type": "array",
+            "title": "Products"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "name",
+          "sort",
+          "products"
+        ],
+        "title": "MenuCategoryOut"
+      },
+      "MenuOut": {
+        "properties": {
+          "store": {
+            "$ref": "#/components/schemas/MenuStoreOut"
+          },
+          "daypart": {
+            "type": "string",
+            "enum": [
+              "morning",
+              "afternoon",
+              "night"
+            ],
+            "title": "Daypart"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/MenuCategoryOut"
+            },
+            "type": "array",
+            "title": "Categories"
+          }
+        },
+        "type": "object",
+        "required": [
+          "store",
+          "daypart",
+          "categories"
+        ],
+        "title": "MenuOut"
+      },
+      "MenuProductOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "allergens": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allergens"
+          },
+          "kcal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kcal"
+          },
+          "caffeine_mg": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caffeine Mg"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "description",
+          "price",
+          "currency",
+          "tags",
+          "allergens",
+          "kcal",
+          "caffeine_mg"
+        ],
+        "title": "MenuProductOut"
+      },
+      "MenuSort": {
+        "properties": {
+          "morning": {
+            "type": "integer",
+            "title": "Morning"
+          },
+          "afternoon": {
+            "type": "integer",
+            "title": "Afternoon"
+          },
+          "night": {
+            "type": "integer",
+            "title": "Night"
+          }
+        },
+        "type": "object",
+        "required": [
+          "morning",
+          "afternoon",
+          "night"
+        ],
+        "title": "MenuSort"
+      },
+      "MenuStoreOut": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "prep_minutes": {
+            "type": "integer",
+            "title": "Prep Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "name",
+          "prep_minutes"
+        ],
+        "title": "MenuStoreOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
       }
     }
   }

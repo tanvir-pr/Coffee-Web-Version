@@ -88,6 +88,15 @@ body {
   background: var(--crema-glass-solid);
 }
 
+.menu-card {
+  background: color-mix(in srgb, var(--crema-surface) 78%, transparent);
+  border: 1px solid var(--crema-rim);
+}
+
+.menu-card:hover {
+  background: var(--crema-surface);
+}
+
 .glass-surface[data-glass="solid"]::before {
   content: "";
   position: absolute;

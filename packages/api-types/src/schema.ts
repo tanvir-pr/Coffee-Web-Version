@@ -55,6 +55,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/menu": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Menu */
+        get: operations["get_menu_v1_menu_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -73,6 +90,86 @@ export interface components {
             /** Kill Switch */
             kill_switch: boolean;
             flags: components["schemas"]["ConfigFlags"];
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /** MenuCategoryOut */
+        MenuCategoryOut: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            sort: components["schemas"]["MenuSort"];
+            /** Products */
+            products: components["schemas"]["MenuProductOut"][];
+        };
+        /** MenuOut */
+        MenuOut: {
+            store: components["schemas"]["MenuStoreOut"];
+            /**
+             * Daypart
+             * @enum {string}
+             */
+            daypart: "morning" | "afternoon" | "night";
+            /** Categories */
+            categories: components["schemas"]["MenuCategoryOut"][];
+        };
+        /** MenuProductOut */
+        MenuProductOut: {
+            /** Id */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Price */
+            price: string;
+            /** Currency */
+            currency: string;
+            /** Tags */
+            tags: string[];
+            /** Allergens */
+            allergens: string[];
+            /** Kcal */
+            kcal: number | null;
+            /** Caffeine Mg */
+            caffeine_mg: number | null;
+        };
+        /** MenuSort */
+        MenuSort: {
+            /** Morning */
+            morning: number;
+            /** Afternoon */
+            afternoon: number;
+            /** Night */
+            night: number;
+        };
+        /** MenuStoreOut */
+        MenuStoreOut: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Prep Minutes */
+            prep_minutes: number;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -141,6 +238,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConfigResponse"];
+                };
+            };
+        };
+    };
+    get_menu_v1_menu_get: {
+        parameters: {
+            query?: {
+                store?: string;
+                daypart?: ("morning" | "afternoon" | "night") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MenuOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

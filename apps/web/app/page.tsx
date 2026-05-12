@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { GlassSurface } from "@/components/glass/GlassSurface";
 import { ThemeControls } from "@/components/theme/ThemeControls";
 import { readServerClock } from "@/lib/theme/server-clock";
@@ -20,8 +21,14 @@ export default async function HomePage() {
         </h1>
         <script dangerouslySetInnerHTML={{ __html: GREETING_BOOT_SCRIPT }} />
         <p className="mt-5 max-w-md font-sans text-base leading-7 text-muted">
-          Pickup, poured to order. The menu opens next. This screen is the glass, the clock, and the motion tier.
+          Pickup, poured to order. Browse the counter, then build the cup.
         </p>
+        <Link
+          href="/menu"
+          className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary"
+        >
+          View menu
+        </Link>
         <ThemeControls />
       </GlassSurface>
     </main>
