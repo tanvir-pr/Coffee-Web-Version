@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import { notFound } from "next/navigation";
 import { badgeTags, type Daypart, type Menu, type MenuProduct } from "@/lib/menu/menu";
 import { readServerClock } from "@/lib/theme/server-clock";
@@ -46,7 +47,7 @@ export default async function MenuItemPage({ params }: { params: Promise<{ slug:
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-6 px-6 py-16">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Script id={`menu-item-${product.slug}`} type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Link href="/menu" className="font-sans text-sm tracking-[0.18em] text-muted uppercase">
         {menu.store.name} menu
       </Link>
@@ -74,6 +75,11 @@ export default async function MenuItemPage({ params }: { params: Promise<{ slug:
       </dl>
       {product.allergens.length > 0 ? (
         <p className="font-sans text-sm text-muted">Contains {product.allergens.join(", ")}.</p>
+      ) : null}
+      {product.customizable ? (
+        <Link href={`/menu/${product.slug}/customize`} className="inline-flex w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
+          Build this cup
+        </Link>
       ) : null}
     </main>
   );

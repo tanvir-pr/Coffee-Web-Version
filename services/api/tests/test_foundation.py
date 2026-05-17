@@ -3,6 +3,7 @@ from datetime import datetime
 import pytest
 from fastapi.testclient import TestClient
 
+from app.core.config import get_settings
 from app.core.flags import anim_flags, season_for_month
 from app.core.guest import read_guest_id, sign_guest_id
 from app.main import app
@@ -29,7 +30,7 @@ def test_config_sets_a_stable_guest_cookie(client: TestClient) -> None:
     assert body["flags"]["anim"]["01"] is True
     assert body["flags"]["anim"]["06"] is False
     guest = client.cookies["crema_guest"]
-    assert read_guest_id(guest, "dev-only-change-me") is not None
+    assert read_guest_id(guest, get_settings().jwt_secret) is not None
 
     second = client.get("/v1/config")
     assert client.cookies["crema_guest"] == guest
@@ -41,7 +42,7 @@ def test_invalid_guest_cookie_is_replaced(client: TestClient) -> None:
     response = client.get("/v1/config")
     token = response.headers["set-cookie"].split(";", 1)[0].removeprefix("crema_guest=")
     assert token != "not-a-token"
-    assert read_guest_id(token, "dev-only-change-me") is not None
+    assert read_guest_id(token, get_settings().jwt_secret) is not None
 
 
 def test_unknown_route_is_problem_json(client: TestClient) -> None:

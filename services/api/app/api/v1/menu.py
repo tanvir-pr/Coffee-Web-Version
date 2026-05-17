@@ -27,6 +27,8 @@ class MenuProductOut(BaseModel):
     description: str
     price: str
     currency: str
+    prices: dict[str, str]
+    customizable: bool
     tags: list[str]
     allergens: list[str]
     kcal: int | None

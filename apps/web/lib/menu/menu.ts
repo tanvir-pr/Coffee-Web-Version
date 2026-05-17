@@ -7,6 +7,8 @@ export type MenuProduct = {
   description: string;
   price: string;
   currency: string;
+  prices: Record<string, string>;
+  customizable: boolean;
   tags: string[];
   allergens: string[];
   kcal: number | null;

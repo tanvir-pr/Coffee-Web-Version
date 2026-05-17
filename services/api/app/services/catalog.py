@@ -11,6 +11,7 @@ from app.db.models import Category, Product, ProductStore, Store, display_price
 from app.services.menu_order import Daypart, daypart_for
 
 SEED_NAMESPACE = uuid.UUID("6f0c1c3e-1b7a-4c1e-9a3d-2c6a3b1e9d10")
+PLAIN_GOODS = frozenset({"bakery", "beans"})
 
 
 def seed_id(name: str) -> uuid.UUID:
@@ -389,6 +390,10 @@ async def load_menu(session: AsyncSession, store_slug: str, daypart: Daypart) ->
                         "description": product.description,
                         "price": display_price(product.prices),
                         "currency": product.currency,
+                        "prices": {
+                            str(size): str(amount) for size, amount in product.prices.items()
+                        },
+                        "customizable": category.slug not in PLAIN_GOODS,
                         "tags": product.tags,
                         "allergens": product.allergens,
                         "kcal": product.kcal,

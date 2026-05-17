@@ -262,6 +262,17 @@
             "type": "string",
             "title": "Currency"
           },
+          "prices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Prices"
+          },
+          "customizable": {
+            "type": "boolean",
+            "title": "Customizable"
+          },
           "tags": {
             "items": {
               "type": "string"
@@ -307,6 +318,8 @@
           "description",
           "price",
           "currency",
+          "prices",
+          "customizable",
           "tags",
           "allergens",
           "kcal",

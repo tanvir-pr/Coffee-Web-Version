@@ -22,6 +22,8 @@ SAMPLE = {
                     "description": "Dense cocoa brownie.",
                     "price": "3.80",
                     "currency": "USD",
+                    "prices": {"M": "3.80"},
+                    "customizable": False,
                     "tags": ["vegan"],
                     "allergens": ["gluten"],
                     "kcal": 320,

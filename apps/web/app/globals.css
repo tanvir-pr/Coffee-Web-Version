@@ -112,8 +112,47 @@ body {
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--crema-primary) 55%, transparent);
 }
 
+.live-cup[data-motion="full"] .cup-drop {
+  animation: cup-drop 550ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.live-cup[data-motion="full"] .cup-bob {
+  animation: cup-bob 1.6s ease-in-out infinite;
+}
+
+.live-cup[data-motion="full"] .cup-steam {
+  animation: cup-steam 1.8s ease-out infinite;
+}
+
+.live-cup[data-motion="full"] .cup-drizzle {
+  stroke-dasharray: 80;
+  animation: cup-drizzle 700ms cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes cup-drop {
+  from { transform: translateY(-48px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes cup-bob {
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes cup-steam {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 0.7; transform: translateY(-18px); }
+}
+
+@keyframes cup-drizzle {
+  from { stroke-dashoffset: 80; }
+  to { stroke-dashoffset: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .glass-surface {
+  .glass-surface,
+  .live-cup,
+  .live-cup * {
+    animation: none;
     transition: none;
   }
 }

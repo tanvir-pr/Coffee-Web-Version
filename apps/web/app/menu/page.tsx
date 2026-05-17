@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { headers } from "next/headers";
 import { menuJsonLd, orderMenu, type Daypart, type Menu } from "@/lib/menu/menu";
 import { readServerClock } from "@/lib/theme/server-clock";
@@ -41,7 +42,7 @@ export default async function MenuPage() {
 
   return (
     <main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Script id="menu-jsonld" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <MenuBrowser menu={ordered} daypart={daypart} />
     </main>
   );

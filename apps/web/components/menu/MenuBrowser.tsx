@@ -96,11 +96,8 @@ export function MenuBrowser({ menu, daypart }: { menu: Menu; daypart: Daypart })
             </h2>
             <ul className="mt-4 grid gap-4 sm:grid-cols-2">
               {group.products.map((product) => (
-                <li key={product.id}>
-                  <Link
-                    href={`/menu/${product.slug}`}
-                    className="menu-card flex h-full flex-col gap-3 rounded-3xl p-5"
-                  >
+                <li key={product.id} className="menu-card flex h-full flex-col gap-3 rounded-3xl p-5">
+                  <Link href={`/menu/${product.slug}`} className="flex flex-col gap-3">
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="font-sans text-lg font-semibold">{product.name}</h3>
                       <span className="rounded-full bg-surface px-3 py-1 font-mono text-sm">
@@ -108,6 +105,7 @@ export function MenuBrowser({ menu, daypart }: { menu: Menu; daypart: Daypart })
                       </span>
                     </div>
                     <p className="font-sans text-sm leading-6 text-muted">{product.description}</p>
+                  </Link>
                     {badgeTags(product.tags).length > 0 ? (
                       <ul className="flex flex-wrap gap-2">
                         {badgeTags(product.tags).map((tag) => (
@@ -120,7 +118,11 @@ export function MenuBrowser({ menu, daypart }: { menu: Menu; daypart: Daypart })
                         ))}
                       </ul>
                     ) : null}
-                  </Link>
+                  {product.customizable ? (
+                    <Link href={`/menu/${product.slug}/customize`} className="font-sans text-sm text-foreground">
+                      Build this cup
+                    </Link>
+                  ) : null}
                 </li>
               ))}
             </ul>

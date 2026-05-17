@@ -131,6 +131,12 @@ export interface components {
             price: string;
             /** Currency */
             currency: string;
+            /** Prices */
+            prices: {
+                [key: string]: string;
+            };
+            /** Customizable */
+            customizable: boolean;
             /** Tags */
             tags: string[];
             /** Allergens */

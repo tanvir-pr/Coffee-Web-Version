@@ -34,7 +34,7 @@ async def cache_set(key: str, value: str) -> None:
 
 
 def menu_cache_key(store_slug: str, daypart: str) -> str:
-    return f"menu:{store_slug}:{daypart}"
+    return f"menu:v2:{store_slug}:{daypart}"
 
 
 def pack_cached(body: str, etag: str) -> str:
