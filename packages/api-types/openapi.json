@@ -121,10 +121,312 @@
           }
         }
       }
+    },
+    "/v1/cart": {
+      "get": {
+        "summary": "Get Cart",
+        "operationId": "get_cart_v1_cart_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/cart/items": {
+      "post": {
+        "summary": "Post Cart Item",
+        "operationId": "post_cart_item_v1_cart_items_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartItemIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/cart/items/{line_id}": {
+      "delete": {
+        "summary": "Delete Cart Item",
+        "operationId": "delete_cart_item_v1_cart_items__line_id__delete",
+        "parameters": [
+          {
+            "name": "line_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Line Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "CartItemIn": {
+        "properties": {
+          "product_slug": {
+            "type": "string",
+            "title": "Product Slug"
+          },
+          "size": {
+            "type": "string",
+            "enum": [
+              "S",
+              "M",
+              "L"
+            ],
+            "title": "Size"
+          },
+          "milk": {
+            "type": "string",
+            "enum": [
+              "whole",
+              "oat",
+              "almond",
+              "soy",
+              "coconut",
+              "none"
+            ],
+            "title": "Milk"
+          },
+          "temp": {
+            "type": "string",
+            "enum": [
+              "hot",
+              "iced"
+            ],
+            "title": "Temp"
+          },
+          "sugar": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 0.0,
+            "title": "Sugar"
+          },
+          "shots": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Shots"
+          },
+          "syrups": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "vanilla",
+                "caramel",
+                "hazelnut",
+                "berry"
+              ]
+            },
+            "type": "array",
+            "title": "Syrups"
+          },
+          "foam": {
+            "type": "boolean",
+            "title": "Foam"
+          },
+          "art": {
+            "type": "string",
+            "enum": [
+              "none",
+              "heart",
+              "leaf",
+              "rosetta"
+            ],
+            "title": "Art"
+          },
+          "quantity": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Quantity",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_slug",
+          "size",
+          "milk",
+          "temp",
+          "sugar",
+          "shots",
+          "foam",
+          "art"
+        ],
+        "title": "CartItemIn"
+      },
+      "CartLineOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "product_slug": {
+            "type": "string",
+            "title": "Product Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "size": {
+            "type": "string",
+            "title": "Size"
+          },
+          "milk": {
+            "type": "string",
+            "title": "Milk"
+          },
+          "temp": {
+            "type": "string",
+            "title": "Temp"
+          },
+          "sugar": {
+            "type": "integer",
+            "title": "Sugar"
+          },
+          "shots": {
+            "type": "integer",
+            "title": "Shots"
+          },
+          "syrups": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Syrups"
+          },
+          "foam": {
+            "type": "boolean",
+            "title": "Foam"
+          },
+          "art": {
+            "type": "string",
+            "title": "Art"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "type": "string",
+            "title": "Unit Price"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "product_slug",
+          "name",
+          "size",
+          "milk",
+          "temp",
+          "sugar",
+          "shots",
+          "syrups",
+          "foam",
+          "art",
+          "quantity",
+          "unit_price",
+          "currency"
+        ],
+        "title": "CartLineOut"
+      },
+      "CartOut": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CartLineOut"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count",
+          "total",
+          "currency",
+          "items"
+        ],
+        "title": "CartOut"
+      },
       "ConfigFlags": {
         "properties": {
           "anim": {

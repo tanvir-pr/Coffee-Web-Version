@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { LiveCup } from "@/components/cup/LiveCup";
+import { addCartItem, publishCart } from "@/lib/cart/api";
+import { launchCup } from "@/lib/cart/fly";
 import { drinkFor } from "@/lib/cup/drinks";
 import {
   describeRecipe,
@@ -16,6 +18,7 @@ import {
   type Syrup,
   type Temp,
 } from "@/lib/cup/recipe";
+import { useTier } from "@/app/providers/MotionProvider";
 import type { MenuProduct } from "@/lib/menu/menu";
 
 const MILKS: { value: Milk; label: string }[] = [
@@ -44,9 +47,28 @@ const ARTS: { value: Art; label: string }[] = [
 
 export function Customizer({ product }: { product: MenuProduct }) {
   const drink = useMemo(() => drinkFor(product.slug), [product.slug]);
+  const tier = useTier();
+  const addRef = useRef<HTMLButtonElement>(null);
   const [recipe, setRecipe] = useState<Recipe>(() => initialRecipe(product, drink));
+  const [notice, setNotice] = useState("");
   const sizes = sizesFor(product);
   const summary = describeRecipe(product, recipe);
+
+  async function addToOrder() {
+    setNotice("");
+    try {
+      const cart = await addCartItem(product.slug, recipe);
+      publishCart(cart);
+      setNotice(tier === "static" ? "Added to order" : `Added ${product.name}`);
+      if (tier !== "static") {
+        addRef.current?.animate([{ transform: "scale(0.92)" }, { transform: "scale(1)" }], { duration: 100 });
+      }
+      const from = addRef.current?.getBoundingClientRect();
+      if (from) launchCup(from, drink.blended, tier);
+    } catch {
+      setNotice("Could not add that drink.");
+    }
+  }
 
   return (
     <div className="glass-surface grid max-h-[92dvh] w-full max-w-4xl gap-6 overflow-y-auto p-5 sm:p-7 md:grid-cols-[240px_1fr]">
@@ -144,6 +166,17 @@ export function Customizer({ product }: { product: MenuProduct }) {
           onChange={(art) => setRecipe((current) => ({ ...current, art: art as Art }))}
         />
         <p className="font-mono text-3xl">${priceFor(product, recipe.size)}</p>
+        <button
+          ref={addRef}
+          type="button"
+          onClick={() => void addToOrder()}
+          className="inline-flex w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary"
+        >
+          Add to order
+        </button>
+        <p className="font-sans text-sm text-muted" aria-live="polite">
+          {notice}
+        </p>
       </form>
     </div>
   );

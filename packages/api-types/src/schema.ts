@@ -72,10 +72,141 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Cart */
+        get: operations["get_cart_v1_cart_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cart/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Cart Item */
+        post: operations["post_cart_item_v1_cart_items_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cart/items/{line_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Cart Item */
+        delete: operations["delete_cart_item_v1_cart_items__line_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** CartItemIn */
+        CartItemIn: {
+            /** Product Slug */
+            product_slug: string;
+            /**
+             * Size
+             * @enum {string}
+             */
+            size: "S" | "M" | "L";
+            /**
+             * Milk
+             * @enum {string}
+             */
+            milk: "whole" | "oat" | "almond" | "soy" | "coconut" | "none";
+            /**
+             * Temp
+             * @enum {string}
+             */
+            temp: "hot" | "iced";
+            /** Sugar */
+            sugar: number;
+            /** Shots */
+            shots: number;
+            /** Syrups */
+            syrups?: ("vanilla" | "caramel" | "hazelnut" | "berry")[];
+            /** Foam */
+            foam: boolean;
+            /**
+             * Art
+             * @enum {string}
+             */
+            art: "none" | "heart" | "leaf" | "rosetta";
+            /**
+             * Quantity
+             * @default 1
+             */
+            quantity: number;
+        };
+        /** CartLineOut */
+        CartLineOut: {
+            /** Id */
+            id: string;
+            /** Product Slug */
+            product_slug: string;
+            /** Name */
+            name: string;
+            /** Size */
+            size: string;
+            /** Milk */
+            milk: string;
+            /** Temp */
+            temp: string;
+            /** Sugar */
+            sugar: number;
+            /** Shots */
+            shots: number;
+            /** Syrups */
+            syrups: string[];
+            /** Foam */
+            foam: boolean;
+            /** Art */
+            art: string;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price */
+            unit_price: string;
+            /** Currency */
+            currency: string;
+        };
+        /** CartOut */
+        CartOut: {
+            /** Count */
+            count: number;
+            /** Total */
+            total: string;
+            /** Currency */
+            currency: string;
+            /** Items */
+            items: components["schemas"]["CartLineOut"][];
+        };
         /** ConfigFlags */
         ConfigFlags: {
             /** Anim */
@@ -267,6 +398,90 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MenuOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_cart_v1_cart_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartOut"];
+                };
+            };
+        };
+    };
+    post_cart_item_v1_cart_items_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartItemIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_cart_item_v1_cart_items__line_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                line_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartOut"];
                 };
             };
             /** @description Validation Error */
