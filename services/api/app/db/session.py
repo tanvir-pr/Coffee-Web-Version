@@ -24,6 +24,14 @@ def get_sessionmaker() -> async_sessionmaker[AsyncSession]:
     return _sessionmaker
 
 
+async def dispose_engine() -> None:
+    global _engine, _sessionmaker
+    if _engine is not None:
+        await _engine.dispose()
+    _engine = None
+    _sessionmaker = None
+
+
 async def ping_database(engine: AsyncEngine) -> None:
     async with engine.connect() as connection:
         await connection.execute(text("SELECT 1"))

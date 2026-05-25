@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
@@ -293,6 +294,7 @@ async def seed_if_empty(session: AsyncSession) -> None:
         slug="riverside",
         timezone="Europe/London",
         prep_minutes=6,
+        tax_rate=Decimal("0.0800"),
     )
     session.add(store)
     for category_row in CATEGORIES:

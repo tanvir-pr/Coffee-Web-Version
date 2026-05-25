@@ -8,6 +8,8 @@ async function proxy(request: Request, path: string[]): Promise<NextResponse> {
   const headers = new Headers();
   const cookie = request.headers.get("cookie");
   if (cookie) headers.set("cookie", cookie);
+  const idempotency = request.headers.get("idempotency-key");
+  if (idempotency) headers.set("idempotency-key", idempotency);
   const hasBody = request.method !== "GET" && request.method !== "HEAD";
   if (hasBody) headers.set("content-type", request.headers.get("content-type") ?? "application/json");
   const upstream = await fetch(target, {

@@ -60,6 +60,11 @@ export function CartView() {
         </ul>
       )}
       <p className="font-mono text-3xl">${cart.total}</p>
+      {cart.items.length > 0 ? (
+        <Link href="/checkout" className="inline-flex w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
+          Checkout
+        </Link>
+      ) : null}
       {error ? (
         <p className="font-sans text-sm text-muted" role="status">
           {error}

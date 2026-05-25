@@ -11,6 +11,7 @@ from starlette.requests import Request
 
 from app.api.health import router as health_router
 from app.api.v1.cart import router as cart_router
+from app.api.v1.checkout import router as checkout_router
 from app.api.v1.config import router as config_router
 from app.api.v1.menu import router as menu_router
 from app.core.config import get_settings
@@ -58,6 +59,7 @@ def create_app() -> FastAPI:
     app.include_router(config_router, prefix="/v1")
     app.include_router(menu_router, prefix="/v1")
     app.include_router(cart_router, prefix="/v1")
+    app.include_router(checkout_router, prefix="/v1")
 
     @app.exception_handler(RequestValidationError)
     async def validation_handler(request: Request, exc: RequestValidationError) -> object:

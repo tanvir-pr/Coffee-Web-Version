@@ -14,6 +14,15 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
     cookie_secure: bool = False
     kill_switch: bool = False
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_publishable_key: str = ""
+
+    @property
+    def payment_provider(self) -> Literal["stripe", "dev"]:
+        if self.stripe_secret_key:
+            return "stripe"
+        return "dev"
 
     @property
     def cors_origin_list(self) -> list[str]:

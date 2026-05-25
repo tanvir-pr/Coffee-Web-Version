@@ -216,6 +216,180 @@
           }
         }
       }
+    },
+    "/v1/checkout/quote": {
+      "get": {
+        "summary": "Get Quote",
+        "operationId": "get_quote_v1_checkout_quote_get",
+        "parameters": [
+          {
+            "name": "store",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "riverside",
+              "title": "Store"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/orders": {
+      "post": {
+        "summary": "Post Order",
+        "operationId": "post_order_v1_orders_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/orders/{order_id}": {
+      "get": {
+        "summary": "Get Order",
+        "operationId": "get_order_v1_orders__order_id__get",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Order Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/orders/{order_id}/confirm-dev": {
+      "post": {
+        "summary": "Post Confirm Dev",
+        "operationId": "post_confirm_dev_v1_orders__order_id__confirm_dev_post",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Order Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/webhooks/stripe": {
+      "post": {
+        "summary": "Post Stripe Webhook",
+        "operationId": "post_stripe_webhook_v1_webhooks_stripe_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -674,6 +848,294 @@
           "prep_minutes"
         ],
         "title": "MenuStoreOut"
+      },
+      "OrderIn": {
+        "properties": {
+          "store": {
+            "type": "string",
+            "title": "Store",
+            "default": "riverside"
+          },
+          "fulfilment": {
+            "type": "string",
+            "const": "pickup",
+            "title": "Fulfilment",
+            "default": "pickup"
+          },
+          "payment_method": {
+            "type": "string",
+            "enum": [
+              "card",
+              "cash"
+            ],
+            "title": "Payment Method"
+          },
+          "contact_name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Contact Name"
+          },
+          "contact_phone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Phone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "payment_method",
+          "contact_name"
+        ],
+        "title": "OrderIn"
+      },
+      "OrderLineOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "size": {
+            "type": "string",
+            "title": "Size"
+          },
+          "milk": {
+            "type": "string",
+            "title": "Milk"
+          },
+          "temp": {
+            "type": "string",
+            "title": "Temp"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "type": "string",
+            "title": "Unit Price"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "size",
+          "milk",
+          "temp",
+          "quantity",
+          "unit_price"
+        ],
+        "title": "OrderLineOut"
+      },
+      "OrderOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "fulfilment": {
+            "type": "string",
+            "title": "Fulfilment"
+          },
+          "payment_method": {
+            "type": "string",
+            "title": "Payment Method"
+          },
+          "payment_status": {
+            "type": "string",
+            "title": "Payment Status"
+          },
+          "subtotal": {
+            "type": "string",
+            "title": "Subtotal"
+          },
+          "discount": {
+            "type": "string",
+            "title": "Discount"
+          },
+          "tip": {
+            "type": "string",
+            "title": "Tip"
+          },
+          "tax": {
+            "type": "string",
+            "title": "Tax"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "contact_name": {
+            "type": "string",
+            "title": "Contact Name"
+          },
+          "prep_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prep Minutes"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Secret"
+          },
+          "provider_intent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Intent Id"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderLineOut"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "status",
+          "fulfilment",
+          "payment_method",
+          "payment_status",
+          "subtotal",
+          "discount",
+          "tip",
+          "tax",
+          "total",
+          "currency",
+          "contact_name",
+          "prep_minutes",
+          "provider",
+          "client_secret",
+          "provider_intent_id",
+          "items"
+        ],
+        "title": "OrderOut"
+      },
+      "QuoteLine": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "type": "string",
+            "title": "Unit Price"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "quantity",
+          "unit_price"
+        ],
+        "title": "QuoteLine"
+      },
+      "QuoteOut": {
+        "properties": {
+          "subtotal": {
+            "type": "string",
+            "title": "Subtotal"
+          },
+          "tax": {
+            "type": "string",
+            "title": "Tax"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "tax_rate": {
+            "type": "string",
+            "title": "Tax Rate"
+          },
+          "prep_minutes": {
+            "type": "integer",
+            "title": "Prep Minutes"
+          },
+          "store_name": {
+            "type": "string",
+            "title": "Store Name"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QuoteLine"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subtotal",
+          "tax",
+          "total",
+          "currency",
+          "tax_rate",
+          "prep_minutes",
+          "store_name",
+          "items"
+        ],
+        "title": "QuoteOut"
       },
       "ValidationError": {
         "properties": {
