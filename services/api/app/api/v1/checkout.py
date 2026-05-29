@@ -19,6 +19,7 @@ from app.services.checkout import (
     quote_cart,
 )
 from app.services.payments import verify_stripe_signature
+from app.services.tracking import events_for
 
 router = APIRouter()
 
@@ -49,6 +50,13 @@ class OrderLineOut(BaseModel):
     unit_price: str
 
 
+class EventOut(BaseModel):
+    id: int
+    status: str
+    reason: str | None
+    at: str
+
+
 class OrderOut(BaseModel):
     id: str
     code: str
@@ -68,6 +76,7 @@ class OrderOut(BaseModel):
     client_secret: str | None
     provider_intent_id: str | None
     items: list[OrderLineOut]
+    events: list[EventOut] = Field(default_factory=list)
 
 
 class OrderIn(BaseModel):
@@ -129,7 +138,8 @@ async def get_order(request: Request, order_id: uuid.UUID) -> OrderOut:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         order, items, payment = await load_order(session, order_id, _guest(request))
-    return OrderOut.model_validate(order_payload(order, items, payment))
+        events = await events_for(session, order.id)
+    return OrderOut.model_validate(order_payload(order, items, payment, events))
 
 
 @router.post("/orders/{order_id}/confirm-dev", response_model=OrderOut)

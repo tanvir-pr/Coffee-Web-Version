@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
     stripe_publishable_key: str = ""
+    kds_token: str = "dev-kds-token"
 
     @property
     def payment_provider(self) -> Literal["stripe", "dev"]:

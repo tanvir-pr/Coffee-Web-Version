@@ -9,9 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.core.errors import Problem
-from app.db.models import Order, OrderItem, Payment, Product, Store, WebhookEvent
+from app.db.models import Order, OrderEvent, OrderItem, Payment, Product, Store, WebhookEvent
 from app.services.cart import read_cart, unit_price, write_cart
 from app.services.payments import create_stripe_intent, dev_intent
+from app.services.tracking import event_dict, events_for, record_received
 
 MONEY = Decimal("0.01")
 
@@ -120,7 +121,12 @@ async def load_order(
     return order, items, payment
 
 
-def order_payload(order: Order, items: list[OrderItem], payment: Payment | None) -> dict[str, Any]:
+def order_payload(
+    order: Order,
+    items: list[OrderItem],
+    payment: Payment | None,
+    events: list[OrderEvent] | None = None,
+) -> dict[str, Any]:
     return {
         "id": str(order.id),
         "code": order.code,
@@ -150,6 +156,7 @@ def order_payload(order: Order, items: list[OrderItem], payment: Payment | None)
             }
             for item in items
         ],
+        "events": [event_dict(event) for event in events or []],
     }
 
 
@@ -173,7 +180,8 @@ async def place_order(
                 "That idempotency key belongs to another guest.",
             )
         order, items, payment = await load_order(session, existing.id, guest_id)
-        return order_payload(order, items, payment), False
+        events = await events_for(session, order.id)
+        return order_payload(order, items, payment, events), False
 
     cart = await read_cart(guest_id)
     if not cart:
@@ -252,6 +260,8 @@ async def place_order(
         client_secret=secret,
     )
     session.add(payment)
+    if paid_cash:
+        await record_received(session, order)
     try:
         await session.commit()
     except IntegrityError as exc:
@@ -265,12 +275,14 @@ async def place_order(
                 "That order was already started.",
             ) from exc
         order, items, payment = await load_order(session, replay.id, guest_id)
-        return order_payload(order, items, payment), False
+        events = await events_for(session, order.id)
+        return order_payload(order, items, payment, events), False
     try:
         await write_cart(guest_id, [])
     except RuntimeError:
         pass
-    payload = order_payload(order, item_rows, payment)
+    events = await events_for(session, order.id)
+    payload = order_payload(order, item_rows, payment, events)
     payload["prep_minutes"] = store.prep_minutes
     return payload, True
 
@@ -292,8 +304,10 @@ async def confirm_dev_payment(
         order.status = "received"
         order.payment_status = "paid"
         payment.status = "paid"
+        await record_received(session, order)
         await session.commit()
-    return order_payload(order, items, payment)
+    events = await events_for(session, order.id)
+    return order_payload(order, items, payment, events)
 
 
 async def apply_payment_event(
@@ -313,6 +327,7 @@ async def apply_payment_event(
                 order.status = "received"
                 order.payment_status = "paid"
                 payment.status = "paid"
+                await record_received(session, order)
     try:
         await session.commit()
     except IntegrityError:

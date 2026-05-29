@@ -208,6 +208,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/kds/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Kds Orders */
+        get: operations["get_kds_orders_v1_kds_orders_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kds/orders/{order_id}/transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Transition */
+        post: operations["post_transition_v1_kds_orders__order_id__transition_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orders/{order_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Order Events */
+        get: operations["get_order_events_v1_orders__order_id__events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -307,10 +358,34 @@ export interface components {
             kill_switch: boolean;
             flags: components["schemas"]["ConfigFlags"];
         };
+        /** EventOut */
+        EventOut: {
+            /** Id */
+            id: number;
+            /** Status */
+            status: string;
+            /** Reason */
+            reason: string | null;
+            /** At */
+            at: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** KdsOrderOut */
+        KdsOrderOut: {
+            /** Id */
+            id: string;
+            /** Code */
+            code: string;
+            /** Status */
+            status: string;
+            /** Contact Name */
+            contact_name: string;
+            /** Items */
+            items: string[];
         };
         /** MenuCategoryOut */
         MenuCategoryOut: {
@@ -456,6 +531,8 @@ export interface components {
             provider_intent_id: string | null;
             /** Items */
             items: components["schemas"]["OrderLineOut"][];
+            /** Events */
+            events?: components["schemas"]["EventOut"][];
         };
         /** QuoteLine */
         QuoteLine: {
@@ -484,6 +561,16 @@ export interface components {
             store_name: string;
             /** Items */
             items: components["schemas"]["QuoteLine"][];
+        };
+        /** TransitionIn */
+        TransitionIn: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "received" | "grinding" | "brewing" | "steaming" | "ready" | "collected" | "cancelled";
+            /** Reason */
+            reason?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -827,6 +914,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_kds_orders_v1_kds_orders_get: {
+        parameters: {
+            query?: {
+                store?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KdsOrderOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_transition_v1_kds_orders__order_id__transition_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KdsOrderOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_order_events_v1_orders__order_id__events_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

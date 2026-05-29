@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { OrderTracker } from "@/components/track/OrderTracker";
 import { fetchOrder, type PlacedOrder } from "@/lib/checkout/api";
 
 export function OrderReceipt({ orderId }: { orderId: string }) {
@@ -46,6 +47,7 @@ export function OrderReceipt({ orderId }: { orderId: string }) {
               </li>
             ))}
           </ul>
+          {order.status === "pending_payment" ? null : <OrderTracker orderId={orderId} initial={order} />}
         </>
       )}
     </main>

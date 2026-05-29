@@ -24,6 +24,7 @@ export type PlacedOrder = {
   provider: string | null;
   client_secret: string | null;
   items: { name: string; size: string; milk: string; temp: string; quantity: number; unit_price: string }[];
+  events?: { id: number; status: string; reason: string | null; at: string }[];
 };
 
 async function problem(response: Response): Promise<string> {
