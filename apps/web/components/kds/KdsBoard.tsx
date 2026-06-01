@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PendingLoader } from "@/components/motion/PendingLoader";
 import { STAGE_LABEL, nextStage, type Stage } from "@/lib/track/stages";
 
 type Ticket = {
@@ -15,14 +16,18 @@ export function KdsBoard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [working, setWorking] = useState(false);
 
   async function load() {
     const response = await fetch("/backend/v1/kds/orders?store=riverside", { cache: "no-store" });
     if (!response.ok) {
       setError("The queue could not be loaded.");
+      setLoaded(true);
       return;
     }
     setTickets((await response.json()) as Ticket[]);
+    setLoaded(true);
   }
 
   useEffect(() => {
@@ -38,6 +43,7 @@ export function KdsBoard() {
 
   async function move(ticket: Ticket, status: string, note: string) {
     setError("");
+    setWorking(true);
     const response = await fetch(`/backend/v1/kds/orders/${ticket.id}/transition`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -45,15 +51,18 @@ export function KdsBoard() {
     });
     if (!response.ok) {
       setError("That stage could not be saved.");
+      setWorking(false);
       return;
     }
     await load();
+    setWorking(false);
   }
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-6 px-6 py-16">
       <h1 className="font-display text-5xl font-semibold tracking-tight">Barista</h1>
-      {tickets.length === 0 ? <p className="font-sans text-muted">The queue is clear.</p> : null}
+      <PendingLoader active={!loaded || working} label="Loading the queue" />
+      {loaded && tickets.length === 0 ? <p className="font-sans text-muted">The queue is clear.</p> : null}
       <ul className="flex flex-col gap-4">
         {tickets.map((ticket) => {
           const upcoming = nextStage(ticket.status);

@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { LatteLoader } from "@/components/motion/LatteLoader";
+import { useLoaderVisibility } from "@/components/motion/PendingLoader";
 import { OrderTracker } from "@/components/track/OrderTracker";
 import { fetchOrder, type PlacedOrder } from "@/lib/checkout/api";
 
 export function OrderReceipt({ orderId }: { orderId: string }) {
   const [order, setOrder] = useState<PlacedOrder | null>(null);
   const [missing, setMissing] = useState(false);
+  const showLoader = useLoaderVisibility(order === null && !missing);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -26,9 +29,9 @@ export function OrderReceipt({ orderId }: { orderId: string }) {
       </Link>
       {missing ? (
         <h1 className="font-display text-5xl font-semibold tracking-tight">Order not found</h1>
-      ) : order === null ? (
-        <h1 className="font-display text-5xl font-semibold tracking-tight">Order</h1>
-      ) : (
+      ) : showLoader ? (
+        <LatteLoader label="Loading the order" />
+      ) : order === null ? null : (
         <>
           <p className="font-sans text-sm tracking-[0.18em] text-muted uppercase">Pickup code</p>
           <h1 className="font-mono text-5xl">{order.code}</h1>

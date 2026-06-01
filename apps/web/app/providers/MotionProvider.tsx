@@ -15,6 +15,10 @@ export function MotionProvider({ children }: { children: ReactNode }) {
   const [tier, setTier] = useState<MotionTier>("lite");
 
   useEffect(() => {
+    document.documentElement.dataset.motion = tier;
+  }, [tier]);
+
+  useEffect(() => {
     let stop = () => {};
     const frame = requestAnimationFrame(() => {
       const next = detectTier();

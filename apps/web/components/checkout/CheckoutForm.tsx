@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { confirmDevPayment, fetchQuote, placeOrder, type Quote } from "@/lib/checkout/api";
+import { LatteLoader } from "@/components/motion/LatteLoader";
+import { PendingLoader, useLoaderVisibility } from "@/components/motion/PendingLoader";
 import { publishCart } from "@/lib/cart/api";
+import { confirmDevPayment, fetchQuote, placeOrder, type Quote } from "@/lib/checkout/api";
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -14,6 +16,7 @@ export function CheckoutForm() {
   const [method, setMethod] = useState<"cash" | "card">("cash");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const quoteLoader = useLoaderVisibility(quote === null);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -43,8 +46,8 @@ export function CheckoutForm() {
         Cart
       </Link>
       <h1 className="font-display text-5xl font-semibold tracking-tight">Checkout</h1>
-      {quote === null ? (
-        <p className="font-sans text-muted">Loading the order.</p>
+      {quote === null || quoteLoader ? (
+        quoteLoader ? <LatteLoader label="Loading the order" /> : null
       ) : quote.items.length === 0 ? (
         <p className="font-sans text-muted">
           Nothing to check out. <Link href="/menu">Browse the menu</Link>.
@@ -101,8 +104,9 @@ export function CheckoutForm() {
               Card
             </button>
           </fieldset>
+          <PendingLoader active={pending} label="Placing the order" />
           <button type="submit" disabled={pending} className="inline-flex w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
-            {pending ? "Placing order" : method === "cash" ? "Place pickup order" : "Pay"}
+            {method === "cash" ? "Place pickup order" : "Pay"}
           </button>
           <p className="font-sans text-sm text-muted" role="status">
             {error}
