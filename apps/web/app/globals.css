@@ -275,13 +275,156 @@ body {
   clip-path: none;
 }
 
+.hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(7.5rem, 11rem);
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 100dvh;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 2rem;
+}
+
+.hero-cards {
+  grid-column: 1 / -1;
+}
+
+.hero-stage-art {
+  width: min(100%, 17.5rem);
+  justify-self: center;
+  color: var(--crema-text);
+}
+
+.hero-stage-art svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.hero-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hero-pour .stream,
+.hero-pour .crema,
+.hero-pour .art-path {
+  transform-box: fill-box;
+}
+
+.hero-pour .stream {
+  transform-origin: top center;
+  transform: scaleY(0);
+}
+
+.hero-pour .crema {
+  transform-origin: bottom center;
+  transform: scaleY(0);
+}
+
+.hero-pour .steam,
+.hero-pour .drip {
+  opacity: 0;
+}
+
+.hero-pour .art-path {
+  stroke-dashoffset: 1;
+}
+
+.hero-pour .menu-card {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.hero-poster [data-pose="served"] .liquid {
+  transform: translateY(-55%);
+}
+
+.hero-poster [data-pose="served"] .crema {
+  transform: scaleY(1);
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  fill: #d9a36a;
+}
+
+.hero-poster [data-pose="served"] .stream,
+.hero-poster [data-pose="served"] .drip {
+  opacity: 0;
+}
+
+.hero-poster [data-pose="served"] .art-path {
+  stroke-dashoffset: 0;
+}
+
+.hero-poster [data-pose="served"] .steam {
+  opacity: 1;
+}
+
+.hero-poster .menu-card {
+  animation: hero-card-in 150ms ease both;
+}
+
+.steam-wisp {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  opacity: 0.75;
+}
+
+.hero-pour[data-state="steaming"] .steam-wisp,
+.hero-pour[data-state="revealing"] .steam-wisp,
+.hero-pour[data-state="released"] .steam-wisp {
+  animation: hero-steam 2.8s linear infinite;
+}
+
+.hero-pour[data-offscreen="true"] .steam-wisp {
+  animation-play-state: paused;
+}
+
+.hero-debug {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 20;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 0.75rem;
+}
+
+@keyframes hero-card-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes hero-steam {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@media (min-width: 768px) {
+  .hero-layout {
+    grid-template-columns: minmax(0, 1fr) auto minmax(16rem, 1fr);
+    gap: 2rem;
+    padding: 4rem 1.5rem;
+  }
+
+  .hero-cards {
+    grid-column: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .glass-surface,
   .live-cup,
   .live-cup *,
   .latte-svg,
   .latte-disc,
-  .latte-art {
+  .latte-art,
+  .steam-wisp,
+  .hero-poster .menu-card {
     animation: none;
     transition: none;
   }

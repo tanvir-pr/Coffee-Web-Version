@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { GlassSurface } from "@/components/glass/GlassSurface";
+import { HeroShell } from "@/components/motion/hero/HeroShell";
 import { ThemeControls } from "@/components/theme/ThemeControls";
 import { readServerClock } from "@/lib/theme/server-clock";
 import { GREETING_BOOT_SCRIPT, greetingFor, resolveTimeOfDay } from "@/lib/theme/timeOfDay";
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ debug?: string }> }) {
   const clock = await readServerClock();
   const tod = clock ? resolveTimeOfDay(clock.hour, clock.minute) : null;
+  const query = await searchParams;
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-6 py-16">
-      <GlassSurface className="w-full max-w-xl px-8 py-10 sm:px-12 sm:py-12">
+    <main>
+      <HeroShell debug={query.debug === "motion"}>
         <p className="font-sans text-sm tracking-[0.18em] text-muted uppercase">Crema</p>
         <h1
           id="greeting"
@@ -19,7 +20,6 @@ export default async function HomePage() {
         >
           {greetingFor(tod)}
         </h1>
-        <script dangerouslySetInnerHTML={{ __html: GREETING_BOOT_SCRIPT }} />
         <p className="mt-5 max-w-md font-sans text-base leading-7 text-muted">
           Pickup, poured to order. Browse the counter, then build the cup.
         </p>
@@ -30,7 +30,8 @@ export default async function HomePage() {
           View menu
         </Link>
         <ThemeControls />
-      </GlassSurface>
+      </HeroShell>
+      <script dangerouslySetInnerHTML={{ __html: GREETING_BOOT_SCRIPT }} />
     </main>
   );
 }
