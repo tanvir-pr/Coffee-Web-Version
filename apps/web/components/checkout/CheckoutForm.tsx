@@ -16,10 +16,12 @@ export function CheckoutForm() {
   const [method, setMethod] = useState<"cash" | "card">("cash");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [slot, setSlot] = useState("");
   const quoteLoader = useLoaderVisibility(quote === null);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
+      setSlot(window.sessionStorage.getItem("crema:slot") ?? "");
       void fetchQuote().then(setQuote);
     });
     return () => cancelAnimationFrame(frame);
@@ -46,6 +48,7 @@ export function CheckoutForm() {
         Cart
       </Link>
       <h1 className="font-display text-5xl font-semibold tracking-tight">Checkout</h1>
+      {slot ? <p className="font-sans text-muted">Pickup slot {new Date(slot).toLocaleString()}</p> : null}
       {quote === null || quoteLoader ? (
         quoteLoader ? <LatteLoader label="Loading the order" /> : null
       ) : quote.items.length === 0 ? (

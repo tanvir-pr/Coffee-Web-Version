@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     stripe_publishable_key: str = ""
     kds_token: str = "dev-kds-token"
+    webauthn_rp_id: str = "localhost"
+    webauthn_rp_name: str = "Crema"
+    webauthn_origin: str = "http://localhost:3000"
 
     @property
     def payment_provider(self) -> Literal["stripe", "dev"]:

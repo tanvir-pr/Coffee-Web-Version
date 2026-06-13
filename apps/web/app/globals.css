@@ -404,6 +404,46 @@ body {
   to { stroke-dashoffset: 0; }
 }
 
+html[data-tod="morning"] .hero-pour,
+html[data-tod="morning"] .hero-poster {
+  background: radial-gradient(120% 80% at 70% 15%, color-mix(in srgb, #e9c9a0 50%, transparent), transparent 62%);
+}
+
+html[data-tod="afternoon"] .hero-pour,
+html[data-tod="afternoon"] .hero-poster {
+  background: radial-gradient(120% 80% at 30% 10%, color-mix(in srgb, #d98a3d 28%, transparent), transparent 60%);
+}
+
+html[data-tod="night"] .hero-pour,
+html[data-tod="night"] .hero-poster {
+  background: radial-gradient(90% 70% at 80% 0%, color-mix(in srgb, #8dbf6a 18%, transparent), transparent 55%);
+}
+
+.stamp {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--crema-rim);
+}
+
+.stamp[data-filled="true"] {
+  background: var(--crema-primary);
+}
+
+.stamp-fresh {
+  animation: stamp-press 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes stamp-press {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+[data-motion="static"] .stamp-fresh {
+  animation: none;
+}
+
 @media (min-width: 768px) {
   .hero-layout {
     grid-template-columns: minmax(0, 1fr) auto minmax(16rem, 1fr);
@@ -424,7 +464,8 @@ body {
   .latte-disc,
   .latte-art,
   .steam-wisp,
-  .hero-poster .menu-card {
+  .hero-poster .menu-card,
+  .stamp-fresh {
     animation: none;
     transition: none;
   }

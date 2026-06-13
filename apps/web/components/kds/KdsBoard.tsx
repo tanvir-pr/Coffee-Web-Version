@@ -12,12 +12,22 @@ type Ticket = {
   items: string[];
 };
 
+type Booking = {
+  id: string;
+  contact_name: string;
+  party: number;
+  area: string;
+  starts_at: string;
+  status: string;
+};
+
 export function KdsBoard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [working, setWorking] = useState(false);
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   async function load() {
     const response = await fetch("/backend/v1/kds/orders?store=riverside", { cache: "no-store" });
@@ -27,6 +37,8 @@ export function KdsBoard() {
       return;
     }
     setTickets((await response.json()) as Ticket[]);
+    const reservations = await fetch("/backend/v1/kds/reservations?store=riverside", { cache: "no-store" });
+    if (reservations.ok) setBookings((await reservations.json()) as Booking[]);
     setLoaded(true);
   }
 
@@ -93,6 +105,31 @@ export function KdsBoard() {
             </li>
           );
         })}
+      </ul>
+      <h2 className="font-display text-3xl font-semibold">Tables today</h2>
+      {loaded && bookings.length === 0 ? <p className="font-sans text-muted">No reservations today.</p> : null}
+      <ul className="flex flex-col gap-3">
+        {bookings.map((booking) => (
+          <li key={booking.id} className="menu-card flex items-center justify-between gap-4 rounded-3xl p-5">
+            <div>
+              <p className="font-sans font-semibold">{booking.contact_name}</p>
+              <p className="font-sans text-sm text-muted">
+                {booking.party} · {booking.area} · {new Date(booking.starts_at).toLocaleTimeString()} · {booking.status}
+              </p>
+            </div>
+            {booking.status === "booked" ? (
+              <button
+                type="button"
+                className="rounded-full px-4 py-2 font-sans text-sm"
+                onClick={() =>
+                  void fetch(`/backend/v1/kds/reservations/${booking.id}/no-show`, { method: "POST" }).then(() => load())
+                }
+              >
+                No-show
+              </button>
+            ) : null}
+          </li>
+        ))}
       </ul>
       <label className="flex flex-col gap-2 font-sans text-sm">
         Cancellation reason

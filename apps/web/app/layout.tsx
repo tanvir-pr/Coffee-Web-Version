@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { MotionProvider } from "@/app/providers/MotionProvider";
 import { CartLink } from "@/components/cart/CartLink";
+import { SiteLinks } from "@/components/nav/SiteLinks";
 import { THEME_BOOT_SCRIPT } from "@/lib/theme/timeOfDay";
 import "./globals.css";
 
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="font-sans text-foreground antialiased">
         <MotionProvider>
+          <SiteLinks />
           <CartLink />
           {children}
         </MotionProvider>

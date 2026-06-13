@@ -10,7 +10,9 @@ dependencies = [
   "redis>=5.2",
   "sqlalchemy[asyncio]>=2.0",
   "structlog>=24.4",
+  "tzdata>=2026.6",
   "uvicorn[standard]>=0.32",
+  "webauthn>=3.0.1",
 ]
 
 [dependency-groups]

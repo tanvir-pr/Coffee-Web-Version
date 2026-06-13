@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import Problem
 from app.db.models import Order, OrderEvent, OrderItem, Store
+from app.services.loyalty import grant_collected
 
 FORWARD = ("received", "grinding", "brewing", "steaming", "ready", "collected")
 ACTIVE = ("received", "grinding", "brewing", "steaming", "ready")
@@ -94,6 +95,8 @@ async def advance(session: AsyncSession, order: Order, status: str, reason: str 
         )
     order.status = status
     session.add(OrderEvent(order_id=order.id, status=status, reason=reason))
+    if status == "collected":
+        await grant_collected(session, order)
     await session.commit()
     return order
 

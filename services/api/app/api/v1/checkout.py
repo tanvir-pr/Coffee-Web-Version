@@ -1,6 +1,7 @@
 import json
 import time
 import uuid
+from datetime import datetime
 from typing import Literal
 
 from fastapi import APIRouter, Request
@@ -85,6 +86,7 @@ class OrderIn(BaseModel):
     payment_method: Literal["card", "cash"]
     contact_name: str = Field(min_length=1, max_length=80)
     contact_phone: str | None = Field(default=None, max_length=32)
+    slot_start: str | None = None
 
 
 def _guest(request: Request) -> str:
@@ -119,6 +121,9 @@ async def get_quote(request: Request, store: str = "riverside") -> QuoteOut:
 @router.post("/orders", response_model=OrderOut)
 async def post_order(request: Request, body: OrderIn) -> JSONResponse:
     phone = body.contact_phone.strip() if body.contact_phone else None
+    slot = datetime.fromisoformat(body.slot_start) if body.slot_start else None
+    raw_user = getattr(request.state, "user_id", None)
+    user_id = uuid.UUID(raw_user) if isinstance(raw_user, str) else None
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         payload, created = await place_order(
@@ -129,6 +134,8 @@ async def post_order(request: Request, body: OrderIn) -> JSONResponse:
             phone=phone or None,
             payment_method=body.payment_method,
             idempotency_key=_idempotency_key(request),
+            user_id=user_id,
+            slot_start=slot,
         )
     return JSONResponse(status_code=201 if created else 200, content=payload)
 

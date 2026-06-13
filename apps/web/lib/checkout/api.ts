@@ -59,9 +59,11 @@ export async function placeOrder(input: {
       payment_method: input.paymentMethod,
       contact_name: input.name,
       contact_phone: input.phone || null,
+      slot_start: window.sessionStorage.getItem("crema:slot"),
     }),
   });
   if (!response.ok) throw new Error(await problem(response));
+  window.sessionStorage.removeItem("crema:slot");
   return (await response.json()) as PlacedOrder;
 }
 

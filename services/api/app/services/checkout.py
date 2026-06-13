@@ -1,5 +1,6 @@
 import secrets
 import uuid
+from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 
@@ -12,6 +13,7 @@ from app.core.errors import Problem
 from app.db.models import Order, OrderEvent, OrderItem, Payment, Product, Store, WebhookEvent
 from app.services.cart import read_cart, unit_price, write_cart
 from app.services.payments import create_stripe_intent, dev_intent
+from app.services.places import claim_slot
 from app.services.tracking import event_dict, events_for, record_received
 
 MONEY = Decimal("0.01")
@@ -169,6 +171,8 @@ async def place_order(
     phone: str | None,
     payment_method: str,
     idempotency_key: str,
+    user_id: uuid.UUID | None = None,
+    slot_start: datetime | None = None,
 ) -> tuple[dict[str, Any], bool]:
     existing = await session.scalar(select(Order).where(Order.idempotency_key == idempotency_key))
     if existing is not None:
@@ -193,6 +197,8 @@ async def place_order(
         Decimal(str(store.tax_rate)),
     )
     paid_cash = payment_method == "cash"
+    if slot_start is not None:
+        await claim_slot(session, store, slot_start, guest_id)
     order = Order(
         id=uuid.uuid4(),
         guest_id=guest_id,
@@ -211,6 +217,8 @@ async def place_order(
         idempotency_key=idempotency_key,
         contact_name=name,
         contact_phone=phone,
+        user_id=user_id,
+        slot_start=slot_start,
     )
     session.add(order)
     item_rows: list[OrderItem] = []

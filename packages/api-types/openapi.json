@@ -522,10 +522,654 @@
           }
         }
       }
+    },
+    "/v1/auth/magic-link": {
+      "post": {
+        "summary": "Post Magic Link",
+        "operationId": "post_magic_link_v1_auth_magic_link_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Post Magic Link V1 Auth Magic Link Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/magic-link/consume": {
+      "post": {
+        "summary": "Post Consume",
+        "operationId": "post_consume_v1_auth_magic_link_consume_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "summary": "Post Logout",
+        "operationId": "post_logout_v1_auth_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "summary": "Get Me",
+        "operationId": "get_me_v1_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Get Me V1 Me Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/loyalty": {
+      "get": {
+        "summary": "Get Loyalty",
+        "operationId": "get_loyalty_v1_me_loyalty_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Loyalty V1 Me Loyalty Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/loyalty/redeem": {
+      "post": {
+        "summary": "Post Redeem",
+        "operationId": "post_redeem_v1_me_loyalty_redeem_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Post Redeem V1 Me Loyalty Redeem Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/passkey/register/options": {
+      "post": {
+        "summary": "Post Passkey Options",
+        "operationId": "post_passkey_options_v1_auth_passkey_register_options_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Post Passkey Options V1 Auth Passkey Register Options Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/passkey/register": {
+      "post": {
+        "summary": "Post Passkey Register",
+        "operationId": "post_passkey_register_v1_auth_passkey_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "type": "object",
+                  "title": "Response Post Passkey Register V1 Auth Passkey Register Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/passkey/login/options": {
+      "post": {
+        "summary": "Post Passkey Login Options",
+        "operationId": "post_passkey_login_options_v1_auth_passkey_login_options_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Post Passkey Login Options V1 Auth Passkey Login Options Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/passkey/login": {
+      "post": {
+        "summary": "Post Passkey Login",
+        "operationId": "post_passkey_login_v1_auth_passkey_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stores": {
+      "get": {
+        "summary": "Get Stores",
+        "operationId": "get_stores_v1_stores_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response Get Stores V1 Stores Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stores/{slug}/slots": {
+      "get": {
+        "summary": "Get Slots",
+        "operationId": "get_slots_v1_stores__slug__slots_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "day",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Day"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Slots V1 Stores  Slug  Slots Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stores/{slug}/slots/hold": {
+      "post": {
+        "summary": "Post Hold",
+        "operationId": "post_hold_v1_stores__slug__slots_hold_post",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SlotIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Post Hold V1 Stores  Slug  Slots Hold Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/reservations": {
+      "post": {
+        "summary": "Post Reservation",
+        "operationId": "post_reservation_v1_reservations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Post Reservation V1 Reservations Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/reservations/{reservation_id}/cancel": {
+      "post": {
+        "summary": "Post Cancel",
+        "operationId": "post_cancel_v1_reservations__reservation_id__cancel_post",
+        "parameters": [
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Reservation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Post Cancel V1 Reservations  Reservation Id  Cancel Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/reservations/{reservation_id}/calendar": {
+      "get": {
+        "summary": "Get Calendar",
+        "operationId": "get_calendar_v1_reservations__reservation_id__calendar_get",
+        "parameters": [
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Reservation Id"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/kds/reservations": {
+      "get": {
+        "summary": "Get Kds Reservations",
+        "operationId": "get_kds_reservations_v1_kds_reservations_get",
+        "parameters": [
+          {
+            "name": "store",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "riverside",
+              "title": "Store"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Get Kds Reservations V1 Kds Reservations Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/kds/reservations/{reservation_id}/no-show": {
+      "post": {
+        "summary": "Post No Show",
+        "operationId": "post_no_show_v1_kds_reservations__reservation_id__no_show_post",
+        "parameters": [
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Reservation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Post No Show V1 Kds Reservations  Reservation Id  No Show Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "CancelIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 8,
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "CancelIn"
+      },
       "CartItemIn": {
         "properties": {
           "product_slug": {
@@ -770,6 +1414,35 @@
           "flags"
         ],
         "title": "ConfigResponse"
+      },
+      "CredentialIn": {
+        "properties": {
+          "credential": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Credential"
+          }
+        },
+        "type": "object",
+        "required": [
+          "credential"
+        ],
+        "title": "CredentialIn"
+      },
+      "EmailIn": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "EmailIn"
       },
       "EventOut": {
         "properties": {
@@ -1090,6 +1763,17 @@
               }
             ],
             "title": "Contact Phone"
+          },
+          "slot_start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slot Start"
           }
         },
         "type": "object",
@@ -1346,6 +2030,95 @@
           "items"
         ],
         "title": "QuoteOut"
+      },
+      "ReservationIn": {
+        "properties": {
+          "store": {
+            "type": "string",
+            "title": "Store",
+            "default": "riverside"
+          },
+          "party": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Party"
+          },
+          "area": {
+            "type": "string",
+            "title": "Area"
+          },
+          "starts_at": {
+            "type": "string",
+            "title": "Starts At"
+          },
+          "contact_name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Contact Name"
+          },
+          "contact_phone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Phone"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "party",
+          "area",
+          "starts_at",
+          "contact_name"
+        ],
+        "title": "ReservationIn"
+      },
+      "SlotIn": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "title": "Start"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start"
+        ],
+        "title": "SlotIn"
+      },
+      "TokenIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "TokenIn"
       },
       "TransitionIn": {
         "properties": {

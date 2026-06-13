@@ -23,10 +23,10 @@ async def cache_get(key: str) -> str | None:
     return str(value)
 
 
-async def cache_set(key: str, value: str) -> None:
+async def cache_set(key: str, value: str, ttl: int = MENU_TTL_SECONDS) -> None:
     client = Redis.from_url(get_settings().redis_url, socket_connect_timeout=0.3)
     try:
-        await client.set(key, value, ex=MENU_TTL_SECONDS)
+        await client.set(key, value, ex=ttl)
     except (RedisError, OSError):
         return
     finally:

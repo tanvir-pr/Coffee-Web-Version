@@ -25,6 +25,9 @@ class GuestSessionMiddleware(BaseHTTPMiddleware):
         if guest_id is None:
             guest_id, minted = new_guest_token(settings.jwt_secret)
         request.state.guest_id = guest_id
+        request.state.user_id = read_guest_id(
+            request.cookies.get("crema_user"), settings.jwt_secret
+        )
         response = await call_next(request)
         if minted is not None:
             response.set_cookie(
