@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LatteLoader } from "@/components/motion/LatteLoader";
 import { useLoaderVisibility } from "@/components/motion/PendingLoader";
+import { PourRefresh } from "@/components/motion/could/PourRefresh";
 import { OrderTracker } from "@/components/track/OrderTracker";
 import { fetchOrder, type PlacedOrder } from "@/lib/checkout/api";
 
@@ -12,15 +13,18 @@ export function OrderReceipt({ orderId }: { orderId: string }) {
   const [missing, setMissing] = useState(false);
   const showLoader = useLoaderVisibility(order === null && !missing);
 
+  const load = useCallback(async () => {
+    const next = await fetchOrder(orderId);
+    if (next) setOrder(next);
+    else setMissing(true);
+  }, [orderId]);
+
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      void fetchOrder(orderId).then((next) => {
-        if (next) setOrder(next);
-        else setMissing(true);
-      });
+      void load();
     });
     return () => cancelAnimationFrame(frame);
-  }, [orderId]);
+  }, [load]);
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-6 px-6 py-16">
@@ -32,7 +36,7 @@ export function OrderReceipt({ orderId }: { orderId: string }) {
       ) : showLoader ? (
         <LatteLoader label="Loading the order" />
       ) : order === null ? null : (
-        <>
+        <PourRefresh onRefresh={load}>
           <p className="font-sans text-sm tracking-[0.18em] text-muted uppercase">Pickup code</p>
           <h1 className="font-mono text-5xl">{order.code}</h1>
           <p className="font-sans text-lg">
@@ -51,7 +55,7 @@ export function OrderReceipt({ orderId }: { orderId: string }) {
             ))}
           </ul>
           {order.status === "pending_payment" ? null : <OrderTracker orderId={orderId} initial={order} />}
-        </>
+        </PourRefresh>
       )}
     </main>
   );

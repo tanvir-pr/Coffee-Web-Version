@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { LiveCup } from "@/components/cup/LiveCup";
+import { CupPreview } from "@/components/motion/could/CupPreview";
+import { TiltControl } from "@/components/motion/could/TiltControl";
 import { addCartItem, publishCart } from "@/lib/cart/api";
 import { launchCup } from "@/lib/cart/fly";
 import { drinkFor } from "@/lib/cup/drinks";
@@ -74,6 +76,8 @@ export function Customizer({ product }: { product: MenuProduct }) {
     <div className="glass-surface grid max-h-[92dvh] w-full max-w-4xl gap-6 overflow-y-auto p-5 sm:p-7 md:grid-cols-[240px_1fr]">
       <div>
         <LiveCup recipe={recipe} />
+        <CupPreview color={drink.blended} />
+        <TiltControl />
         <p className="mt-3 font-sans text-sm leading-6 text-muted" aria-live="polite">
           {summary}
         </p>

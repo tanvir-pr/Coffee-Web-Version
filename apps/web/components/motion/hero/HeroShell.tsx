@@ -33,6 +33,7 @@ export function HeroShell({ children, debug }: { children: ReactNode; debug: boo
 
   return (
     <section
+      id="hero"
       ref={root}
       className={tier === "static" ? "hero-poster" : "hero-pour"}
       data-state={tier === "static" ? "released" : "pinned"}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { AnimFlags } from "@/app/providers/AnimFlags";
 import { MotionProvider } from "@/app/providers/MotionProvider";
 import { CartLink } from "@/components/cart/CartLink";
 import { SiteLinks } from "@/components/nav/SiteLinks";
@@ -38,9 +39,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="font-sans text-foreground antialiased">
         <MotionProvider>
-          <SiteLinks />
-          <CartLink />
-          {children}
+          <AnimFlags>
+            <SiteLinks />
+            <CartLink />
+            {children}
+          </AnimFlags>
         </MotionProvider>
       </body>
     </html>

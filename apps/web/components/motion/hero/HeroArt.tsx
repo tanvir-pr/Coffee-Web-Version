@@ -20,6 +20,7 @@ export function HeroArt({ pose }: { pose: "empty" | "served" }) {
       <g clipPath={`url(#${clipId})`}>
         <g transform="translate(40 168)">
           <g className="liquid">
+            <g className="liquid-tilt">
             <path className="wave" fill="#3B2217" d={heroWavePath(0, 0)} />
             <rect className="crema" x="0" y="-10" width="120" height="16" fill="#C98B4F" />
             <path
@@ -32,6 +33,7 @@ export function HeroArt({ pose }: { pose: "empty" | "served" }) {
               pathLength={1}
               strokeDasharray={1}
             />
+            </g>
           </g>
         </g>
       </g>

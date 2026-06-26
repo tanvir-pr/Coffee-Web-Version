@@ -456,6 +456,137 @@ html[data-tod="night"] .hero-poster {
   }
 }
 
+.story-page {
+  position: relative;
+}
+
+.steam-trail,
+.season-layer,
+.season-still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.season-banner {
+  position: relative;
+  min-height: 8rem;
+  overflow: hidden;
+}
+
+.ripple {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(43, 26, 18, 0.55);
+  pointer-events: none;
+  animation: coffee-stain 2.5s linear forwards;
+}
+
+.ripple::before,
+.ripple::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border-radius: inherit;
+  border: 1px solid rgba(43, 26, 18, 0.35);
+  animation: coffee-ring 600ms cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.ripple::after {
+  animation-delay: 80ms;
+}
+
+@keyframes coffee-ring {
+  from { transform: scale(0.2); opacity: 0.9; }
+  to { transform: scale(2.4); opacity: 0; }
+}
+
+@keyframes coffee-stain {
+  0% { transform: scale(0); opacity: 0; }
+  8% { transform: scale(1); opacity: 0.9; }
+  36% { opacity: 0.8; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+.pour-drop {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  background: #2b1a12;
+  transform: scale(0);
+  transform-origin: top center;
+}
+
+.pour-cup {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.65rem;
+  border: 1px solid currentcolor;
+  border-radius: 0 0 0.45rem 0.45rem;
+  opacity: 0;
+}
+
+.pour-cup.is-armed {
+  opacity: 1;
+}
+
+.cafe-sound {
+  background: transparent;
+}
+
+[data-cafe-sound] {
+  --audio-level: 0;
+}
+
+.cafe-sound::after {
+  content: "";
+  display: inline-block;
+  width: calc(var(--audio-level) * 0.8rem);
+  height: 2px;
+  margin-left: 0.35rem;
+  vertical-align: middle;
+  background: currentcolor;
+}
+
+#hero {
+  --audio-level: 0;
+  --tilt: 0deg;
+}
+
+#hero .steam-wisp {
+  transform: scaleY(calc(1 + var(--audio-level) * 0.45));
+  transform-origin: bottom center;
+}
+
+#hero .liquid-tilt,
+.live-cup [data-liquid-group] {
+  transform: rotate(var(--tilt, 0deg));
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.origin-map-scrub {
+  min-height: 140vh;
+}
+
+.foam-bubble {
+  transform-origin: center;
+  animation: foam-pop 300ms 600ms cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@keyframes foam-pop {
+  to { transform: scale(0); opacity: 0; }
+}
+
+input[aria-label="Café volume"] {
+  width: 4.5rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .glass-surface,
   .live-cup,
@@ -465,7 +596,12 @@ html[data-tod="night"] .hero-poster {
   .latte-art,
   .steam-wisp,
   .hero-poster .menu-card,
-  .stamp-fresh {
+  .stamp-fresh,
+  .ripple,
+  .ripple::before,
+  .ripple::after,
+  .foam-bubble,
+  .season-layer {
     animation: none;
     transition: none;
   }

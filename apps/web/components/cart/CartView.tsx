@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LatteLoader } from "@/components/motion/LatteLoader";
+import { SteamTrail } from "@/components/motion/could/SteamTrail";
 import { useLoaderVisibility } from "@/components/motion/PendingLoader";
 import { fetchCart, publishCart, removeCartItem, type Cart } from "@/lib/cart/api";
 
@@ -40,7 +41,10 @@ export function CartView() {
       <h1 className="font-display text-5xl font-semibold tracking-tight">Cart</h1>
       {showLoader ? <LatteLoader label="Loading the cart" /> : null}
       {cart === null || showLoader ? null : cart.items.length === 0 ? (
-        <p className="font-sans text-muted">Nothing in the cart yet.</p>
+        <div className="steam-zone relative min-h-48">
+          <SteamTrail />
+          <p className="font-sans text-muted">Nothing in the cart yet.</p>
+        </div>
       ) : (
         <ul className="flex flex-col gap-4">
           {cart.items.map((item) => (

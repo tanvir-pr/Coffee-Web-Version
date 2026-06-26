@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { PourRefresh } from "@/components/motion/could/PourRefresh";
 
 type Loyalty = {
   stamps: number;
@@ -16,18 +17,21 @@ export default function RewardsPage() {
   const [loyalty, setLoyalty] = useState<Loyalty | null>(null);
   const [signedOut, setSignedOut] = useState(false);
 
+  const load = useCallback(async () => {
+    const response = await fetch("/backend/v1/me/loyalty", { cache: "no-store" });
+    if (response.status === 401) {
+      setSignedOut(true);
+      return;
+    }
+    if (response.ok) setLoyalty((await response.json()) as Loyalty);
+  }, []);
+
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      void fetch("/backend/v1/me/loyalty", { cache: "no-store" }).then(async (response) => {
-        if (response.status === 401) {
-          setSignedOut(true);
-          return;
-        }
-        if (response.ok) setLoyalty((await response.json()) as Loyalty);
-      });
+      void load();
     });
     return () => cancelAnimationFrame(frame);
-  }, []);
+  }, [load]);
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-6 px-6 py-16">
@@ -40,6 +44,7 @@ export default function RewardsPage() {
           <Link href="/account">Sign in</Link> to collect stamps.
         </p>
       ) : null}
+      <PourRefresh onRefresh={load}>
       {loyalty ? (
         <>
           <p className="font-sans text-muted">{loyalty.tier_label}</p>
@@ -76,6 +81,7 @@ export default function RewardsPage() {
           ) : null}
         </>
       ) : null}
+      </PourRefresh>
     </main>
   );
 }

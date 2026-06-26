@@ -92,7 +92,7 @@ export function LiveCup({ recipe }: { recipe: Recipe }) {
         </clipPath>
       </defs>
       <rect x="14" y="28" width="92" height="120" rx="18" fill="none" stroke="currentColor" strokeOpacity="0.35" />
-      <g clipPath={`url(#${clipId})`}>
+      <g clipPath={`url(#${clipId})`} data-liquid-group="">
         {layers.map((layer) => (
           <path
             key={layer.id}
