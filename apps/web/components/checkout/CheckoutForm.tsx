@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LatteLoader } from "@/components/motion/LatteLoader";
+import { HoldToConfirm } from "@/components/motion/should/HoldToConfirm";
 import { PendingLoader, useLoaderVisibility } from "@/components/motion/PendingLoader";
 import { publishCart } from "@/lib/cart/api";
 import { confirmDevPayment, fetchQuote, placeOrder, type Quote } from "@/lib/checkout/api";
@@ -14,25 +15,31 @@ export function CheckoutForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState<"cash" | "card">("cash");
+  const [applyReward, setApplyReward] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [slot, setSlot] = useState("");
   const quoteLoader = useLoaderVisibility(quote === null);
+  const form = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       setSlot(window.sessionStorage.getItem("crema:slot") ?? "");
-      void fetchQuote().then(setQuote);
+      void fetchQuote(applyReward).then(setQuote);
     });
     return () => cancelAnimationFrame(frame);
-  }, []);
+  }, [applyReward]);
 
   async function submit() {
     if (!quote || quote.items.length === 0 || pending) return;
     setPending(true);
     setError("");
+    void import("@/components/motion/should/Cheers");
     try {
-      const order = method === "card" ? await placeOrder({ paymentMethod: "card", name, phone }) : await placeOrder({ paymentMethod: "cash", name, phone });
+      const order =
+        method === "card"
+          ? await placeOrder({ paymentMethod: "card", name, phone, applyReward })
+          : await placeOrder({ paymentMethod: "cash", name, phone, applyReward });
       const paid = order.provider === "dev" ? await confirmDevPayment(order.id) : order;
       publishCart({ count: 0, total: "0.00", currency: paid.currency, items: [] });
       router.push(`/orders/${paid.id}`);
@@ -57,10 +64,10 @@ export function CheckoutForm() {
         </p>
       ) : (
         <form
+          ref={form}
           className="flex flex-col gap-5"
           onSubmit={(event) => {
             event.preventDefault();
-            void submit();
           }}
         >
           <p className="font-sans text-sm text-muted">
@@ -77,8 +84,21 @@ export function CheckoutForm() {
             ))}
           </ul>
           <p className="font-sans text-sm text-muted">Subtotal ${quote.subtotal}</p>
+          {quote.discount && quote.discount !== "0.00" ? (
+            <p className="font-sans text-sm text-muted">Reward −${quote.discount}</p>
+          ) : null}
           <p className="font-sans text-sm text-muted">Tax ${quote.tax}</p>
           <p className="font-mono text-3xl">${quote.total}</p>
+          {quote.reward_available ? (
+            <label className="flex items-center gap-3 font-sans text-sm">
+              <input
+                type="checkbox"
+                checked={applyReward}
+                onChange={(event) => setApplyReward(event.target.checked)}
+              />
+              Apply a free drink reward
+            </label>
+          ) : null}
           <label className="flex flex-col gap-2 font-sans text-sm">
             Name
             <input
@@ -108,9 +128,14 @@ export function CheckoutForm() {
             </button>
           </fieldset>
           <PendingLoader active={pending} label="Placing the order" />
-          <button type="submit" disabled={pending} className="inline-flex w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
-            {method === "cash" ? "Place pickup order" : "Pay"}
-          </button>
+          <HoldToConfirm
+            total={quote.total}
+            disabled={pending}
+            onConfirm={() => {
+              if (!form.current?.reportValidity()) return;
+              void submit();
+            }}
+          />
           <p className="font-sans text-sm text-muted" role="status">
             {error}
           </p>

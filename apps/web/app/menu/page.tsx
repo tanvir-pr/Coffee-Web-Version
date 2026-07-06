@@ -5,14 +5,13 @@ import { menuJsonLd, orderMenu, type Daypart, type Menu } from "@/lib/menu/menu"
 import { readServerClock } from "@/lib/theme/server-clock";
 import { resolveTimeOfDay } from "@/lib/theme/timeOfDay";
 import { MenuBrowser } from "@/components/menu/MenuBrowser";
+import { serverApiUrl } from "@/lib/server-env";
 
 export const metadata: Metadata = { title: "Menu · Crema" };
 
-const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000";
-
 async function loadMenu(daypart: Daypart): Promise<Menu | null> {
   try {
-    const response = await fetch(`${API_URL}/v1/menu?store=riverside&daypart=${daypart}`, {
+    const response = await fetch(`${serverApiUrl()}/v1/menu?store=riverside&daypart=${daypart}`, {
       next: { revalidate: 60 },
     });
     if (!response.ok) return null;

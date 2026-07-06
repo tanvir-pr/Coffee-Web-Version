@@ -62,6 +62,18 @@ def _user(request: Request) -> uuid.UUID | None:
 
 @router.get("/stores")
 async def get_stores() -> list[dict[str, object]]:
+    # #region agent log
+    try:
+        import json
+        import time
+        from pathlib import Path
+
+        line = json.dumps({"sessionId":"a14086","hypothesisId":"E","location":"places.py:get_stores","message":"stores start","data":{},"timestamp":int(time.time()*1000)})
+        with Path(r"d:\Full-web-2-Project\debug-a14086.log").open("a", encoding="utf-8") as handle:
+            handle.write(line + "\n")
+    except Exception:
+        pass
+    # #endregion
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         return await list_stores(session)

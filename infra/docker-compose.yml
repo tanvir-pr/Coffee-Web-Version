@@ -21,3 +21,34 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  api:
+    profiles: ["app"]
+    image: crema-api
+    build:
+      context: ../services/api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://crema:crema@db:5432/crema
+      REDIS_URL: redis://redis:6379/0
+      ENV: local
+      JWT_SECRET: dev-only-change-me
+      CORS_ORIGINS: http://localhost:3000
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  web:
+    profiles: ["app"]
+    image: crema-web
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    environment:
+      API_URL: http://api:8000
+      KDS_TOKEN: dev-kds-token
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api

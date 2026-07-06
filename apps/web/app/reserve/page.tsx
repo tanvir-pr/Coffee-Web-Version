@@ -58,6 +58,9 @@ export default function ReservePage() {
         Stores
       </Link>
       <h1 className="font-display text-5xl font-semibold tracking-tight">Reserve</h1>
+      <p className="font-sans text-base leading-7 text-muted">
+        Hold a table indoors or on the terrace. One booking, one calm seat.
+      </p>
       {booking ? (
         <>
           <p className="font-sans" role="status">

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { fetchMyOrders, type PlacedOrder } from "@/lib/checkout/api";
 
 type Member = { email: string; name: string };
 
@@ -25,13 +26,17 @@ function base64ToBuffer(value: string): ArrayBuffer {
 export default function AccountPage() {
   const [email, setEmail] = useState("");
   const [member, setMember] = useState<Member | null>(null);
+  const [orders, setOrders] = useState<PlacedOrder[]>([]);
   const [devToken, setDevToken] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       void fetch("/backend/v1/me", { cache: "no-store" }).then(async (response) => {
-        if (response.ok) setMember((await response.json()) as Member);
+        if (response.ok) {
+          setMember((await response.json()) as Member);
+          void fetchMyOrders().then(setOrders);
+        }
       });
       const token = new URLSearchParams(window.location.search).get("token");
       if (!token) return;
@@ -45,6 +50,7 @@ export default function AccountPage() {
           return;
         }
         setMember((await response.json()) as Member);
+        void fetchMyOrders().then(setOrders);
         window.history.replaceState(null, "", "/account");
       });
     });
@@ -144,39 +150,76 @@ export default function AccountPage() {
             onClick={() =>
               void fetch("/backend/v1/auth/logout", { method: "POST" }).then(() => {
                 setMember(null);
+                setOrders([]);
               })
             }
           >
             Sign out
           </button>
+          <section className="mt-4 flex flex-col gap-3">
+            <h2 className="font-display text-2xl font-semibold tracking-tight">Past pickups</h2>
+            {orders.length === 0 ? (
+              <p className="font-sans text-sm text-muted">No orders on this account yet.</p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {orders.map((order) => (
+                  <li key={order.id} className="menu-product-card flex flex-col gap-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <Link href={`/orders/${order.id}`} className="font-mono text-lg">
+                        {order.code}
+                      </Link>
+                      <span className="font-sans text-sm text-muted">{order.status}</span>
+                    </div>
+                    <p className="font-sans text-sm text-muted">
+                      {order.items.map((item) => item.name).join(", ")} · ${order.total}
+                    </p>
+                    {order.items[0]?.product_slug ? (
+                      <Link
+                        href={`/menu/${order.items[0].product_slug}/customize`}
+                        className="font-sans text-sm underline-offset-4 hover:underline"
+                      >
+                        Build another cup
+                      </Link>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </>
       ) : (
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void requestLink();
-          }}
-        >
-          <label className="flex flex-col gap-2 font-sans text-sm">
-            Email
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="rounded-2xl border border-muted bg-transparent px-4 py-3"
-            />
-          </label>
-          <button type="submit" className="w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
-            Email me a sign-in link
-          </button>
-          {devToken ? (
-            <Link href={`/account?token=${encodeURIComponent(devToken)}`} className="font-sans text-sm text-muted">
-              Open the sign-in link
-            </Link>
-          ) : null}
-        </form>
+        <div className="flow-empty menu-product-card text-left">
+          <p className="font-display text-3xl font-semibold tracking-tight">Sign in without a password.</p>
+          <p className="mt-3 font-sans text-base leading-7 text-muted">
+            We email a one-time link. Same email returns the same stamp card.
+          </p>
+          <form
+            className="mt-6 flex flex-col gap-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void requestLink();
+            }}
+          >
+            <label className="flex flex-col gap-2 font-sans text-sm">
+              Email
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="rounded-2xl border border-muted bg-transparent px-4 py-3"
+              />
+            </label>
+            <button type="submit" className="w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
+              Email me a sign-in link
+            </button>
+            {devToken ? (
+              <Link href={`/account?token=${encodeURIComponent(devToken)}`} className="font-sans text-sm text-muted">
+                Open the sign-in link
+              </Link>
+            ) : null}
+          </form>
+        </div>
       )}
       {message ? (
         <p className="font-sans text-sm text-muted" role="status">

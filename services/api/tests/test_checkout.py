@@ -62,7 +62,13 @@ def _order(client: TestClient, method: str) -> dict[str, object]:
 
 
 def test_quote_uses_the_server_price_and_tax() -> None:
-    assert quote_amounts([("5.90", 1)], Decimal("0.0800")) == ("5.90", "0.47", "6.37")
+    assert quote_amounts([("5.90", 1)], Decimal("0.0800")) == ("5.90", "0.00", "0.47", "6.37")
+    assert quote_amounts([("5.90", 1)], Decimal("0.0800"), Decimal("5.90")) == (
+        "5.90",
+        "5.90",
+        "0.00",
+        "0.00",
+    )
     assert to_cents("6.37") == 637
     assert stripe_form("6.37", "USD", "order-1")["amount"] == "637"
 

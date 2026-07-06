@@ -16,6 +16,7 @@ from app.services.auth import (
     verify_login,
     verify_registration,
 )
+from app.services.checkout import member_orders
 from app.services.loyalty import loyalty_snapshot, redeem_reward
 
 router = APIRouter()
@@ -76,6 +77,14 @@ async def get_me(request: Request) -> dict[str, str]:
     async with sessionmaker() as session:
         user = await user_by_id(session, getattr(request.state, "user_id", None))
     return {"email": user.email, "name": user.name}
+
+
+@router.get("/me/orders")
+async def get_my_orders(request: Request) -> list[dict[str, object]]:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        user = await user_by_id(session, getattr(request.state, "user_id", None))
+        return await member_orders(session, user.id)
 
 
 @router.get("/me/loyalty")

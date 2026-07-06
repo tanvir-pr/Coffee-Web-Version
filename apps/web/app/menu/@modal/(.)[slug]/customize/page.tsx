@@ -12,9 +12,9 @@ export default async function CustomizeModal({ params }: { params: Promise<{ slu
   if (!found?.product.customizable) notFound();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-3 sm:items-center">
-      <div className="absolute inset-0 bg-[rgba(20,14,11,0.46)]" />
-      <div role="dialog" aria-modal="true" aria-labelledby="customizer-title" className="relative z-10 w-full max-w-4xl">
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-3 pt-20 sm:items-center">
+      <div className="absolute inset-0 bg-[rgba(20,14,11,0.72)]" />
+      <div role="dialog" aria-modal="true" aria-labelledby="customizer-title" className="relative z-10 w-full min-w-0 max-w-4xl">
         <Customizer product={found.product} />
       </div>
     </div>

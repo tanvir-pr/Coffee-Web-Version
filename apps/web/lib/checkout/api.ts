@@ -1,11 +1,14 @@
 export type Quote = {
   subtotal: string;
+  discount: string;
   tax: string;
   total: string;
   currency: string;
   tax_rate: string;
   prep_minutes: number;
   store_name: string;
+  reward_available?: boolean;
+  reward_applied?: boolean;
   items: { name: string; quantity: number; unit_price: string }[];
 };
 
@@ -16,6 +19,7 @@ export type PlacedOrder = {
   payment_method: string;
   payment_status: string;
   subtotal: string;
+  discount?: string;
   tax: string;
   total: string;
   currency: string;
@@ -23,7 +27,16 @@ export type PlacedOrder = {
   prep_minutes: number | null;
   provider: string | null;
   client_secret: string | null;
-  items: { name: string; size: string; milk: string; temp: string; quantity: number; unit_price: string }[];
+  created_at?: string;
+  items: {
+    name: string;
+    product_slug?: string;
+    size: string;
+    milk: string;
+    temp: string;
+    quantity: number;
+    unit_price: string;
+  }[];
   events?: { id: number; status: string; reason: string | null; at: string }[];
 };
 
@@ -36,8 +49,9 @@ async function problem(response: Response): Promise<string> {
   }
 }
 
-export async function fetchQuote(): Promise<Quote | null> {
-  const response = await fetch("/backend/v1/checkout/quote", { cache: "no-store" });
+export async function fetchQuote(applyReward = false): Promise<Quote | null> {
+  const query = applyReward ? "?apply_reward=true" : "";
+  const response = await fetch(`/backend/v1/checkout/quote${query}`, { cache: "no-store" });
   if (!response.ok) return null;
   return (await response.json()) as Quote;
 }
@@ -46,6 +60,7 @@ export async function placeOrder(input: {
   paymentMethod: "card" | "cash";
   name: string;
   phone: string;
+  applyReward?: boolean;
 }): Promise<PlacedOrder> {
   const response = await fetch("/backend/v1/orders", {
     method: "POST",
@@ -60,6 +75,7 @@ export async function placeOrder(input: {
       contact_name: input.name,
       contact_phone: input.phone || null,
       slot_start: window.sessionStorage.getItem("crema:slot"),
+      apply_reward: Boolean(input.applyReward),
     }),
   });
   if (!response.ok) throw new Error(await problem(response));
@@ -77,4 +93,10 @@ export async function fetchOrder(orderId: string): Promise<PlacedOrder | null> {
   const response = await fetch(`/backend/v1/orders/${orderId}`, { cache: "no-store" });
   if (!response.ok) return null;
   return (await response.json()) as PlacedOrder;
+}
+
+export async function fetchMyOrders(): Promise<PlacedOrder[]> {
+  const response = await fetch("/backend/v1/me/orders", { cache: "no-store" });
+  if (!response.ok) return [];
+  return (await response.json()) as PlacedOrder[];
 }

@@ -163,7 +163,7 @@ async def _hours_for(session: AsyncSession, store: Store, day: date) -> tuple[st
     return hour.opens, hour.closes, hour.closed, ""
 
 
-async def _busy(session: AsyncSession, store_id: uuid.UUID) -> str:
+async def _active_count(session: AsyncSession, store_id: uuid.UUID) -> int:
     count = await session.scalar(
         select(func.count())
         .select_from(Order)
@@ -172,12 +172,20 @@ async def _busy(session: AsyncSession, store_id: uuid.UUID) -> str:
             Order.status.in_(("received", "grinding", "brewing", "steaming", "ready")),
         )
     )
-    active = int(count or 0)
+    return int(count or 0)
+
+
+async def _busy(session: AsyncSession, store_id: uuid.UUID) -> str:
+    active = await _active_count(session, store_id)
     if active >= 4:
         return "busy"
     if active >= 1:
         return "steady"
     return "quiet"
+
+
+def eta_minutes(prep_minutes: int, active: int) -> int:
+    return prep_minutes + active * 2
 
 
 def store_payload(
@@ -188,6 +196,7 @@ def store_payload(
     hours: list[dict[str, object]],
     exceptions: list[dict[str, object]],
     busy: str,
+    eta: int,
 ) -> dict[str, object]:
     return {
         "slug": store.slug,
@@ -202,6 +211,7 @@ def store_payload(
         "open": open_now,
         "hours_label": label,
         "busy": busy,
+        "eta_minutes": eta,
         "hours": hours,
         "exceptions": exceptions,
     }
@@ -229,6 +239,7 @@ async def list_stores(
                 .order_by(StoreException.on_date)
             )
         )
+        active = await _active_count(session, store.id)
         payload.append(
             store_payload(
                 store,
@@ -254,6 +265,7 @@ async def list_stores(
                     for row in exception_rows
                 ],
                 busy=await _busy(session, store.id),
+                eta=eta_minutes(store.prep_minutes, active),
             )
         )
     return payload

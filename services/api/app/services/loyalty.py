@@ -128,14 +128,23 @@ async def loyalty_snapshot(session: AsyncSession, user_id: uuid.UUID) -> dict[st
     }
 
 
-async def redeem_reward(session: AsyncSession, user_id: uuid.UUID) -> dict[str, str]:
-    reward = await session.scalar(
+async def oldest_issued_reward(session: AsyncSession, user_id: uuid.UUID) -> Reward | None:
+    return await session.scalar(
         select(Reward)
         .where(Reward.user_id == user_id, Reward.status == "issued")
         .order_by(Reward.created_at)
     )
+
+
+async def consume_issued_reward(session: AsyncSession, user_id: uuid.UUID) -> Reward:
+    reward = await oldest_issued_reward(session, user_id)
     if reward is None:
         raise Problem(409, "REWARD_NONE", "No reward", "There is no free drink waiting.")
     reward.status = "redeemed"
+    return reward
+
+
+async def redeem_reward(session: AsyncSession, user_id: uuid.UUID) -> dict[str, str]:
+    reward = await consume_issued_reward(session, user_id)
     await session.commit()
     return {"id": str(reward.id), "status": reward.status}

@@ -19,12 +19,18 @@ from app.services.tracking import event_dict, events_for, record_received
 MONEY = Decimal("0.01")
 
 
-def quote_amounts(unit_prices: list[tuple[str, int]], tax_rate: Decimal) -> tuple[str, str, str]:
+def quote_amounts(
+    unit_prices: list[tuple[str, int]],
+    tax_rate: Decimal,
+    discount: Decimal = Decimal("0.00"),
+) -> tuple[str, str, str, str]:
     subtotal = sum((Decimal(price) * quantity for price, quantity in unit_prices), Decimal("0.00"))
     subtotal = subtotal.quantize(MONEY)
-    tax = (subtotal * tax_rate).quantize(MONEY, rounding=ROUND_HALF_UP)
-    total = (subtotal + tax).quantize(MONEY)
-    return f"{subtotal:.2f}", f"{tax:.2f}", f"{total:.2f}"
+    discount = min(discount.quantize(MONEY), subtotal)
+    taxable = (subtotal - discount).quantize(MONEY)
+    tax = (taxable * tax_rate).quantize(MONEY, rounding=ROUND_HALF_UP)
+    total = (taxable + tax).quantize(MONEY)
+    return f"{subtotal:.2f}", f"{discount:.2f}", f"{tax:.2f}", f"{total:.2f}"
 
 
 def money(value: Decimal | str) -> str:
@@ -72,22 +78,49 @@ async def priced_lines(session: AsyncSession, items: list[dict[str, Any]]) -> li
     return priced
 
 
-async def quote_cart(session: AsyncSession, guest_id: str, store_slug: str) -> dict[str, Any]:
+def free_drink_discount(lines: list[dict[str, Any]]) -> Decimal:
+    if not lines:
+        return Decimal("0.00")
+    prices = [Decimal(str(line["unit_price"])) for line in lines]
+    return min(prices).quantize(MONEY)
+
+
+async def quote_cart(
+    session: AsyncSession,
+    guest_id: str,
+    store_slug: str,
+    *,
+    apply_reward: bool = False,
+    user_id: uuid.UUID | None = None,
+) -> dict[str, Any]:
+    from app.services.loyalty import oldest_issued_reward
+
     store = await _store(session, store_slug)
     lines = await priced_lines(session, await read_cart(guest_id))
-    subtotal, tax, total = quote_amounts(
+    discount = Decimal("0.00")
+    reward_available = False
+    if user_id is not None:
+        reward = await oldest_issued_reward(session, user_id)
+        reward_available = reward is not None
+        if apply_reward and reward is not None:
+            discount = free_drink_discount(lines)
+    subtotal, discount_s, tax, total = quote_amounts(
         [(str(line["unit_price"]), int(line["quantity"])) for line in lines],
         Decimal(str(store.tax_rate)),
+        discount,
     )
     currency = str(lines[0]["currency"]) if lines else "USD"
     return {
         "subtotal": subtotal,
+        "discount": discount_s,
         "tax": tax,
         "total": total,
         "currency": currency,
         "tax_rate": f"{Decimal(str(store.tax_rate)):.4f}",
         "prep_minutes": store.prep_minutes,
         "store_name": store.name,
+        "reward_available": reward_available,
+        "reward_applied": discount > 0,
         "items": [
             {
                 "name": line["name"],
@@ -123,6 +156,22 @@ async def load_order(
     return order, items, payment
 
 
+async def member_orders(session: AsyncSession, user_id: uuid.UUID) -> list[dict[str, Any]]:
+    rows = list(
+        await session.scalars(
+            select(Order).where(Order.user_id == user_id).order_by(Order.created_at.desc()).limit(20)
+        )
+    )
+    payload: list[dict[str, Any]] = []
+    for order in rows:
+        items = list(await session.scalars(select(OrderItem).where(OrderItem.order_id == order.id)))
+        payment = await session.scalar(select(Payment).where(Payment.order_id == order.id))
+        body = order_payload(order, items, payment)
+        body["created_at"] = order.created_at.isoformat()
+        payload.append(body)
+    return payload
+
+
 def order_payload(
     order: Order,
     items: list[OrderItem],
@@ -150,6 +199,7 @@ def order_payload(
         "items": [
             {
                 "name": item.name,
+                "product_slug": item.product_slug,
                 "size": item.size,
                 "milk": item.milk,
                 "temp": item.temp,
@@ -173,6 +223,7 @@ async def place_order(
     idempotency_key: str,
     user_id: uuid.UUID | None = None,
     slot_start: datetime | None = None,
+    apply_reward: bool = False,
 ) -> tuple[dict[str, Any], bool]:
     existing = await session.scalar(select(Order).where(Order.idempotency_key == idempotency_key))
     if existing is not None:
@@ -187,14 +238,23 @@ async def place_order(
         events = await events_for(session, order.id)
         return order_payload(order, items, payment, events), False
 
+    from app.services.loyalty import consume_issued_reward
+
     cart = await read_cart(guest_id)
     if not cart:
         raise Problem(422, "CART_EMPTY", "Cart is empty", "Add a drink before checkout.")
     store = await _store(session, store_slug)
     lines = await priced_lines(session, cart)
-    subtotal, tax, total = quote_amounts(
+    discount = Decimal("0.00")
+    if apply_reward:
+        if user_id is None:
+            raise Problem(401, "AUTH_REQUIRED", "Sign in required", "Sign in to use a free drink.")
+        await consume_issued_reward(session, user_id)
+        discount = free_drink_discount(lines)
+    subtotal, discount_s, tax, total = quote_amounts(
         [(str(line["unit_price"]), int(line["quantity"])) for line in lines],
         Decimal(str(store.tax_rate)),
+        discount,
     )
     paid_cash = payment_method == "cash"
     if slot_start is not None:
@@ -207,7 +267,7 @@ async def place_order(
         status="received" if paid_cash else "pending_payment",
         fulfilment="pickup",
         subtotal=Decimal(subtotal),
-        discount=Decimal("0.00"),
+        discount=Decimal(discount_s),
         tip=Decimal("0.00"),
         tax=Decimal(tax),
         total=Decimal(total),

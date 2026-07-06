@@ -33,17 +33,21 @@ class QuoteLine(BaseModel):
 
 class QuoteOut(BaseModel):
     subtotal: str
+    discount: str = "0.00"
     tax: str
     total: str
     currency: str
     tax_rate: str
     prep_minutes: int
     store_name: str
+    reward_available: bool = False
+    reward_applied: bool = False
     items: list[QuoteLine]
 
 
 class OrderLineOut(BaseModel):
     name: str
+    product_slug: str | None = None
     size: str
     milk: str
     temp: str
@@ -87,6 +91,7 @@ class OrderIn(BaseModel):
     contact_name: str = Field(min_length=1, max_length=80)
     contact_phone: str | None = Field(default=None, max_length=32)
     slot_start: str | None = None
+    apply_reward: bool = False
 
 
 def _guest(request: Request) -> str:
@@ -111,10 +116,20 @@ def _idempotency_key(request: Request) -> str:
 
 
 @router.get("/checkout/quote", response_model=QuoteOut)
-async def get_quote(request: Request, store: str = "riverside") -> QuoteOut:
+async def get_quote(
+    request: Request, store: str = "riverside", apply_reward: bool = False
+) -> QuoteOut:
+    raw_user = getattr(request.state, "user_id", None)
+    user_id = uuid.UUID(raw_user) if isinstance(raw_user, str) else None
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
-        payload = await quote_cart(session, _guest(request), store)
+        payload = await quote_cart(
+            session,
+            _guest(request),
+            store,
+            apply_reward=apply_reward,
+            user_id=user_id,
+        )
     return QuoteOut.model_validate(payload)
 
 
@@ -136,6 +151,7 @@ async def post_order(request: Request, body: OrderIn) -> JSONResponse:
             idempotency_key=_idempotency_key(request),
             user_id=user_id,
             slot_start=slot,
+            apply_reward=body.apply_reward,
         )
     return JSONResponse(status_code=201 if created else 200, content=payload)
 

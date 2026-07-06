@@ -33,7 +33,7 @@ function paint(svg: SVGSVGElement | null, offset: number) {
   });
 }
 
-export function LiveCup({ recipe }: { recipe: Recipe }) {
+export function LiveCup({ recipe, className = "live-cup h-64 w-full text-foreground" }: { recipe: Recipe; className?: string }) {
   const tier = useTier();
   const clipId = `cup-${useId().replaceAll(":", "")}`;
   const svgRef = useRef<SVGSVGElement>(null);
@@ -81,7 +81,7 @@ export function LiveCup({ recipe }: { recipe: Recipe }) {
       role="img"
       aria-hidden
       data-motion={tier}
-      className="live-cup h-64 w-full text-foreground"
+      className={className}
       animate={{ scale: SCALE[recipe.size] }}
       transition={tier === "full" ? spring.bouncy : { duration: tier === "lite" ? 0.3 : 0 }}
       style={{ originX: "50%", originY: "72%" }}

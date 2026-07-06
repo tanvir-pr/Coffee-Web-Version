@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HeroShell } from "@/components/motion/hero/HeroShell";
+import { HomeBelow } from "@/components/home/HomeBelow";
 import { ThemeControls } from "@/components/theme/ThemeControls";
 import { readServerClock } from "@/lib/theme/server-clock";
 import { GREETING_BOOT_SCRIPT, greetingFor, resolveTimeOfDay } from "@/lib/theme/timeOfDay";
@@ -32,6 +33,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <ThemeControls />
       </HeroShell>
       <script dangerouslySetInnerHTML={{ __html: GREETING_BOOT_SCRIPT }} />
+      <HomeBelow daypart={tod} />
     </main>
   );
 }

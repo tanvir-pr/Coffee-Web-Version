@@ -60,6 +60,9 @@ export default function PreorderPage() {
         Stores
       </Link>
       <h1 className="font-display text-5xl font-semibold tracking-tight">Pre-order</h1>
+      <p className="font-sans text-base leading-7 text-muted">
+        Hold a pickup slot, then build the cup. The bar keeps your place for five minutes.
+      </p>
       <label className="flex flex-col gap-2 font-sans text-sm">
         Store
         <select value={store} onChange={(event) => setStore(event.target.value)} className="rounded-2xl border border-muted bg-transparent px-4 py-3">

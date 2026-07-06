@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { LatteLoader } from "@/components/motion/LatteLoader";
 import { useLoaderVisibility } from "@/components/motion/PendingLoader";
 import { PourRefresh } from "@/components/motion/could/PourRefresh";
+import { Cheers } from "@/components/motion/should/Cheers";
+import { PrintedReceipt } from "@/components/motion/should/PrintedReceipt";
 import { OrderTracker } from "@/components/track/OrderTracker";
 import { fetchOrder, type PlacedOrder } from "@/lib/checkout/api";
 
@@ -37,6 +39,8 @@ export function OrderReceipt({ orderId }: { orderId: string }) {
         <LatteLoader label="Loading the order" />
       ) : order === null ? null : (
         <PourRefresh onRefresh={load}>
+          <Cheers />
+          <p className="font-sans text-lg">Order placed. Your {order.items[0]?.name ?? "drink"} is next.</p>
           <p className="font-sans text-sm tracking-[0.18em] text-muted uppercase">Pickup code</p>
           <h1 className="font-mono text-5xl">{order.code}</h1>
           <p className="font-sans text-lg">
@@ -54,6 +58,7 @@ export function OrderReceipt({ orderId }: { orderId: string }) {
               </li>
             ))}
           </ul>
+          <PrintedReceipt order={order} />
           {order.status === "pending_payment" ? null : <OrderTracker orderId={orderId} initial={order} />}
         </PourRefresh>
       )}

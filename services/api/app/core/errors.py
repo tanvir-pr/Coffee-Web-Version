@@ -41,6 +41,18 @@ def problem_response(
 
 async def problem_handler(request: Request, exc: Exception) -> JSONResponse:
     if not isinstance(exc, Problem):
+        # #region agent log
+        try:
+            import json
+            import time
+            from pathlib import Path
+
+            line = json.dumps({"sessionId":"a14086","hypothesisId":"C","location":"errors.py:problem_handler","message":"unhandled api exception","data":{"path":request.url.path,"type":type(exc).__name__,"error":str(exc)[:300]},"timestamp":int(time.time()*1000)})
+            with Path(r"d:\Full-web-2-Project\debug-a14086.log").open("a", encoding="utf-8") as handle:
+                handle.write(line + "\n")
+        except Exception:
+            pass
+        # #endregion
         return problem_response(request, 500, "INTERNAL", "Internal error")
     return problem_response(request, exc.status, exc.code, exc.title, exc.detail)
 

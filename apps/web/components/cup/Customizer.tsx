@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { LiveCup } from "@/components/cup/LiveCup";
+import { MagneticButton } from "@/components/motion/should/MagneticButton";
 import { CupPreview } from "@/components/motion/could/CupPreview";
 import { TiltControl } from "@/components/motion/could/TiltControl";
 import { addCartItem, publishCart } from "@/lib/cart/api";
@@ -73,8 +74,20 @@ export function Customizer({ product }: { product: MenuProduct }) {
   }
 
   return (
-    <div className="glass-surface grid max-h-[92dvh] w-full max-w-4xl gap-6 overflow-y-auto p-5 sm:p-7 md:grid-cols-[240px_1fr]">
-      <div>
+    <div className="cup-builder glass-surface flex max-h-[calc(100dvh-6.5rem)] w-full min-w-0 max-w-4xl flex-col">
+      <div className="flex min-w-0 items-start justify-between gap-3 px-5 pt-5 sm:px-7">
+        <div className="min-w-0">
+          <p className="font-sans text-sm tracking-[0.18em] text-muted uppercase">Build</p>
+          <h1 id="customizer-title" className="font-display text-4xl font-semibold tracking-tight break-words">
+            {product.name}
+          </h1>
+        </div>
+        <Link href={`/menu/${product.slug}`} className="shrink-0 font-sans text-sm text-muted">
+          Close
+        </Link>
+      </div>
+      <div className="grid min-h-0 flex-1 gap-6 overflow-y-auto px-5 py-4 sm:px-7 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)]">
+      <div className="min-w-0">
         <LiveCup recipe={recipe} />
         <CupPreview color={drink.blended} />
         <TiltControl />
@@ -82,22 +95,14 @@ export function Customizer({ product }: { product: MenuProduct }) {
           {summary}
         </p>
       </div>
-      <form className="flex flex-col gap-5" onSubmit={(event) => event.preventDefault()}>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="font-sans text-sm tracking-[0.18em] text-muted uppercase">Build</p>
-            <h1 id="customizer-title" className="font-display text-4xl font-semibold tracking-tight">
-              {product.name}
-            </h1>
-          </div>
-          <Link href={`/menu/${product.slug}`} className="font-sans text-sm text-muted">
-            Close
-          </Link>
-        </div>
+      <form className="flex min-w-0 flex-col gap-5" onSubmit={(event) => event.preventDefault()}>
         <Choice
           label="Size"
           value={recipe.size}
-          options={sizes.map((size) => ({ value: size, label: `${size} · ${SIZES_ML[size]} ml` }))}
+          options={sizes.map((size) => ({
+            value: size,
+            label: `${SIZE_NAME[size]} · ${SIZES_ML[size]} ml`,
+          }))}
           onChange={(size) => setRecipe((current) => ({ ...current, size: size as Size }))}
         />
         <Choice
@@ -128,7 +133,7 @@ export function Customizer({ product }: { product: MenuProduct }) {
           <div className="mt-2 flex items-center gap-3">
             <button
               type="button"
-              className="rounded-full bg-surface px-4 py-2 font-sans text-sm"
+              className="choice-chip rounded-full px-4 py-2 font-sans text-sm"
               onClick={() => setRecipe((current) => ({ ...current, shots: Math.max(1, current.shots - 1) }))}
             >
               Less
@@ -136,7 +141,7 @@ export function Customizer({ product }: { product: MenuProduct }) {
             <span className="font-mono text-lg">{recipe.shots}</span>
             <button
               type="button"
-              className="rounded-full bg-surface px-4 py-2 font-sans text-sm"
+              className="choice-chip rounded-full px-4 py-2 font-sans text-sm"
               onClick={() => setRecipe((current) => ({ ...current, shots: Math.min(3, current.shots + 1) }))}
             >
               More
@@ -169,24 +174,30 @@ export function Customizer({ product }: { product: MenuProduct }) {
           options={ARTS}
           onChange={(art) => setRecipe((current) => ({ ...current, art: art as Art }))}
         />
+      </form>
+      </div>
+      <div className="flex items-center justify-between gap-4 border-t border-[var(--crema-rim)] px-5 py-4 sm:px-7">
         <p className="font-mono text-3xl">${priceFor(product, recipe.size)}</p>
-        <button
+        <MagneticButton
           ref={addRef}
           type="button"
           onClick={() => void addToOrder()}
           className="inline-flex w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary"
         >
           Add to order
-        </button>
-        <p className="font-sans text-sm text-muted" aria-live="polite">
+        </MagneticButton>
+      </div>
+      {notice ? (
+        <p className="px-5 pb-4 font-sans text-sm text-muted sm:px-7" aria-live="polite">
           {notice}
         </p>
-      </form>
+      ) : null}
     </div>
   );
 }
 
 const SIZES_ML: Record<Size, number> = { S: 240, M: 360, L: 480 };
+const SIZE_NAME: Record<Size, string> = { S: "Small", M: "Medium", L: "Large" };
 
 function Choice({
   label,
@@ -211,9 +222,7 @@ function Choice({
               type="button"
               aria-pressed={pressed}
               onClick={() => onChange(option.value)}
-              className={`rounded-full px-4 py-2 font-sans text-sm ${
-                pressed ? "bg-primary text-on-primary" : "bg-surface/80 text-foreground"
-              }`}
+              className="choice-chip rounded-full px-4 py-2 font-sans text-sm"
             >
               {option.label}
             </button>

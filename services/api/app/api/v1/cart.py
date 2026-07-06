@@ -77,6 +77,18 @@ async def get_cart(request: Request) -> CartOut:
 
 @router.post("/cart/items", response_model=CartOut)
 async def post_cart_item(request: Request, body: CartItemIn) -> CartOut:
+    # #region agent log
+    try:
+        import json
+        import time
+        from pathlib import Path
+
+        line = json.dumps({"sessionId":"a14086","hypothesisId":"D","location":"cart.py:post_cart_item","message":"cart post start","data":{"slug":body.product_slug,"size":body.size},"timestamp":int(time.time()*1000)})
+        with Path(r"d:\Full-web-2-Project\debug-a14086.log").open("a", encoding="utf-8") as handle:
+            handle.write(line + "\n")
+    except Exception:
+        pass
+    # #endregion
     guest_id = _guest(request)
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:

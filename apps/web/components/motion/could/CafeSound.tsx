@@ -37,7 +37,21 @@ export function CafeSound() {
   } | null>(null);
 
   useEffect(() => {
+    const onClink = () => {
+      const node = audio.current;
+      if (!node) return;
+      const tone = node.context.createOscillator();
+      const gain = node.context.createGain();
+      tone.frequency.value = 880;
+      gain.gain.setValueAtTime(0.08, node.context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, node.context.currentTime + 0.15);
+      tone.connect(gain).connect(node.context.destination);
+      tone.start();
+      tone.stop(node.context.currentTime + 0.16);
+    };
+    window.addEventListener("crema:clink", onClink);
     return () => {
+      window.removeEventListener("crema:clink", onClink);
       audio.current?.stop();
       paintLevel(0);
     };
