@@ -48,8 +48,9 @@ export function SiteHeader() {
         Skip to content
       </a>
       <div className="mx-auto flex h-16 w-full min-w-0 max-w-6xl items-center gap-3 px-4">
-        <Link href="/" className="font-display text-2xl font-semibold tracking-tight">
-          Crema
+        <Link href="/" className="crema-brand">
+          <span className="crema-mark" aria-hidden="true" />
+          <span className="font-display text-2xl font-semibold tracking-tight">Crema</span>
         </Link>
         <nav aria-label="Crema" className="ml-4 hidden min-w-0 items-center gap-1 md:flex">
           {LINKS.map((link) => (

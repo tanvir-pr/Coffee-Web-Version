@@ -793,6 +793,22 @@ input[aria-label="Café volume"] {
   backdrop-filter: blur(12px);
 }
 
+.crema-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.crema-mark {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 46%, var(--crema-crema) 0 34%, transparent 36%),
+    var(--crema-primary);
+  box-shadow: inset 0 -0.35rem 0 color-mix(in srgb, var(--crema-text) 22%, transparent);
+}
+
 .site-link[aria-current="page"] {
   background: var(--crema-primary);
   color: var(--crema-on-primary);
