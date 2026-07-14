@@ -65,10 +65,6 @@ export function HomeBelow({ daypart }: { daypart: Daypart | null }) {
         </Link>
       </SectionReveal>
 
-      <footer className="home-band border-t border-[var(--crema-rim)]">
-        <p className="font-display text-2xl font-semibold tracking-tight">Crema</p>
-        <p className="mt-2 font-sans text-sm text-muted">Poured to order. Collected at the counter.</p>
-      </footer>
     </div>
   );
 }
