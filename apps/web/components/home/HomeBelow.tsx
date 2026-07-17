@@ -10,6 +10,32 @@ export function HomeBelow({ daypart }: { daypart: Daypart | null }) {
 
   return (
     <div className="home-below">
+      <section className="home-visits" aria-label="Ways to visit">
+        <article className="visit-card">
+          <p className="visit-kicker">Counter</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">Browse the pours</h2>
+          <p className="mt-2 font-sans text-sm leading-6 text-muted">The menu follows the light outside.</p>
+          <Link href="/menu" className="visit-link">
+            Open the menu
+          </Link>
+        </article>
+        <article className="visit-card">
+          <p className="visit-kicker">Stores</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">See who is open</h2>
+          <p className="mt-2 font-sans text-sm leading-6 text-muted">Hours, the queue, and a slot you can hold.</p>
+          <Link href="/stores" className="visit-link">
+            Find a store
+          </Link>
+        </article>
+        <article className="visit-card">
+          <p className="visit-kicker">Rewards</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">Keep the stamps</h2>
+          <p className="mt-2 font-sans text-sm leading-6 text-muted">Ten collected drinks, then one is on the house.</p>
+          <Link href="/rewards" className="visit-link">
+            Open the card
+          </Link>
+        </article>
+      </section>
       <SectionReveal className="home-band">
         <p className="font-sans text-sm tracking-[0.18em] text-muted uppercase">{day.title}</p>
         <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight sm:text-5xl">
