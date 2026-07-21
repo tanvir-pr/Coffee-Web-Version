@@ -15,6 +15,7 @@ export function MenuCupTile({ product, compact = false }: { product: MenuProduct
       style={{ background: `linear-gradient(160deg, ${drink.blended}33, transparent 70%)` }}
     >
       <LiveCup recipe={recipe} className={`live-cup w-full text-foreground ${compact ? "h-28" : "h-40"}`} />
+      <span className="menu-tile-price">${product.price}</span>
     </div>
   );
 }

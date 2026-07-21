@@ -172,11 +172,24 @@ body {
 }
 
 .menu-cup-tile {
+  position: relative;
   display: grid;
   place-items: center;
   border-radius: 1.25rem;
   min-height: 10rem;
   overflow: hidden;
+}
+
+.menu-tile-price {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  background: color-mix(in srgb, var(--crema-surface) 88%, transparent);
+  color: var(--crema-text);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
 }
 
 .menu-cup-tile-compact {
@@ -869,6 +882,9 @@ input[aria-label="Café volume"] {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   font-family: var(--font-sans), system-ui, sans-serif;
   font-size: 0.95rem;
 }
