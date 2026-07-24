@@ -41,9 +41,16 @@ export function CartView() {
       <h1 className="font-display text-5xl font-semibold tracking-tight">Cart</h1>
       {showLoader ? <LatteLoader label="Loading the cart" /> : null}
       {cart === null || showLoader ? null : cart.items.length === 0 ? (
-        <div className="steam-zone relative min-h-48">
+        <div className="cart-empty steam-zone relative">
           <SteamTrail />
-          <p className="font-sans text-muted">Nothing in the cart yet.</p>
+          <span className="crema-mark" aria-hidden="true" />
+          <p className="font-display text-3xl font-semibold tracking-tight">The tray is clear.</p>
+          <p className="max-w-sm font-sans text-sm leading-6 text-muted">
+            Nothing in the cart yet. Pick a pour from the counter and it will land here.
+          </p>
+          <Link href="/menu" className="inline-flex w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
+            Browse the menu
+          </Link>
         </div>
       ) : (
         <ul className="flex flex-col gap-4">
