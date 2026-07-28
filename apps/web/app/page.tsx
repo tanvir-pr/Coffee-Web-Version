@@ -17,12 +17,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <h1
           id="greeting"
           suppressHydrationWarning
-          className="mt-4 font-display text-[2.5rem] leading-none font-semibold tracking-tight text-foreground sm:text-5xl"
+          className="mt-4 font-display text-[2.75rem] leading-none font-semibold tracking-tight text-foreground sm:text-6xl lg:text-[4.25rem]"
         >
           {greetingFor(tod)}
         </h1>
-        <p className="mt-5 max-w-md font-sans text-base leading-7 text-muted">
-          Pickup, poured to order. Browse the counter, then build the cup.
+        <p className="mt-5 max-w-lg font-sans text-base leading-7 text-muted sm:text-lg">
+          From cherry tree to crema — pickup, poured to order.
         </p>
         <Link
           href="/menu"

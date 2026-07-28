@@ -136,12 +136,40 @@ function fillFor(layer: Layer, recipe: Recipe, drink: DrinkProfile): string {
   return layer.color;
 }
 
-export function wavePath(left: number, width: number, top: number, bottom: number, offset: number): string {
+export function wavePath(
+  left: number,
+  width: number,
+  top: number,
+  bottom: number,
+  offset: number,
+  phase = 0,
+): string {
   const right = left + width;
-  const mid = left + width * 0.5;
-  const control = left + width * 0.25;
-  const crest = top - offset;
-  return `M${left.toFixed(2)} ${top.toFixed(2)} Q${control.toFixed(2)} ${crest.toFixed(2)} ${mid.toFixed(2)} ${top.toFixed(2)} T${right.toFixed(2)} ${top.toFixed(2)} V${bottom.toFixed(2)} H${left.toFixed(2)} Z`;
+  const amp = offset;
+  const surface = (t: number) =>
+    top +
+    Math.sin(phase + t * Math.PI) * amp +
+    Math.sin(phase * 1.65 + t * Math.PI * 2.15) * amp * 0.38 +
+    Math.sin(phase * 0.55 + t * Math.PI * 3.4) * amp * 0.16;
+  const x0 = left;
+  const x1 = left + width * 0.18;
+  const x2 = left + width * 0.36;
+  const x3 = left + width * 0.52;
+  const x4 = left + width * 0.72;
+  const x5 = left + width * 0.88;
+  const y0 = surface(0).toFixed(2);
+  const y1 = surface(0.18).toFixed(2);
+  const y2 = surface(0.36).toFixed(2);
+  const y3 = surface(0.52).toFixed(2);
+  const y4 = surface(0.72).toFixed(2);
+  const y5 = surface(0.88).toFixed(2);
+  const y6 = surface(1).toFixed(2);
+  return [
+    `M${x0.toFixed(2)} ${y0}`,
+    `C${x1.toFixed(2)} ${y1} ${x2.toFixed(2)} ${y2} ${x3.toFixed(2)} ${y3}`,
+    `C${x4.toFixed(2)} ${y4} ${x5.toFixed(2)} ${y5} ${right.toFixed(2)} ${y6}`,
+    `V${bottom.toFixed(2)} H${left.toFixed(2)} Z`,
+  ].join(" ");
 }
 
 export function describeRecipe(product: MenuProduct, recipe: Recipe): string {

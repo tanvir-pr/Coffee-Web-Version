@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   ...(dockerBuild
     ? {
         output: "standalone" as const,
-        outputFileTracingRoot: path.join(process.cwd(), "../.."),
+        outputFileTracingRoot: path.join(__dirname, "../.."),
       }
     : {}),
 };

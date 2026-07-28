@@ -23,11 +23,14 @@ export function CheckoutForm() {
   const form = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      setSlot(window.sessionStorage.getItem("crema:slot") ?? "");
-      void fetchQuote(applyReward).then(setQuote);
+    let alive = true;
+    setSlot(window.sessionStorage.getItem("crema:slot") ?? "");
+    void fetchQuote(applyReward).then((next) => {
+      if (alive) setQuote(next);
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      alive = false;
+    };
   }, [applyReward]);
 
   async function submit() {

@@ -50,14 +50,37 @@ export function SteamTrail() {
           wisps.splice(index, 1);
           continue;
         }
-        const rise = age * 40;
-        const drift = (curl(wisp.x, now / 400) - 0.5) * 16 + wisp.drift;
-        const opacity = age < 0.5 ? age * 0.7 : (1 - age) * 0.7;
+        const rise = age * 48;
+        const swirl = Math.sin(now / 320 + wisp.born / 500) * 6;
+        const drift = (curl(wisp.x, now / 400) - 0.5) * 18 + wisp.drift + swirl;
+        const opacity = age < 0.35 ? age * 1.1 : (1 - age) * 0.75;
+        const glow = context.createRadialGradient(
+          wisp.x + drift * 0.3,
+          wisp.y - rise * 0.55,
+          0,
+          wisp.x + drift * 0.3,
+          wisp.y - rise * 0.55,
+          10 + age * 8,
+        );
+        glow.addColorStop(0, `rgba(255, 246, 230, ${(opacity * 0.35).toFixed(3)})`);
+        glow.addColorStop(1, "rgba(255, 246, 230, 0)");
+        context.fillStyle = glow;
+        context.beginPath();
+        context.arc(wisp.x + drift * 0.3, wisp.y - rise * 0.55, 10 + age * 8, 0, Math.PI * 2);
+        context.fill();
         context.beginPath();
         context.strokeStyle = `rgba(247, 241, 232, ${opacity.toFixed(3)})`;
-        context.lineWidth = 1.4 + age;
-        context.moveTo(wisp.x, wisp.y - rise);
-        context.quadraticCurveTo(wisp.x + drift, wisp.y - rise * 0.5, wisp.x + drift * 0.4, wisp.y);
+        context.lineWidth = 1.2 + age * 1.4;
+        context.lineCap = "round";
+        context.moveTo(wisp.x, wisp.y);
+        context.bezierCurveTo(
+          wisp.x + drift * 0.35,
+          wisp.y - rise * 0.35,
+          wisp.x + drift,
+          wisp.y - rise * 0.7,
+          wisp.x + drift * 0.45,
+          wisp.y - rise,
+        );
         context.stroke();
       }
       frame = wisps.length > 0 ? requestAnimationFrame(draw) : 0;

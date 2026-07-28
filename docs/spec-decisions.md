@@ -47,7 +47,7 @@ Gift cards are out of v1. Checkout does not offer them.
 
 Customer realtime is SSE with a 15 second heartbeat. The stream closes while the tab is hidden and resumes with `Last-Event-ID`. The poll fallback is `GET /orders/{id}` every 15 seconds.
 
-Guest checkout uses an httpOnly `crema_guest` cookie, `SameSite=Lax`. Customer sign-in for v1 is a magic link. Passkeys come in phase 2. Prices, tax, slots, and loyalty are computed on the server.
+Guest checkout uses an httpOnly `crema_guest` cookie, `SameSite=Lax`. Customer sign-in is email/password or Google. Prices, tax, slots, and loyalty are computed on the server.
 
 ## Run
 

@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     webauthn_rp_id: str = "localhost"
     webauthn_rp_name: str = "Crema"
     webauthn_origin: str = "http://localhost:3000"
+    google_client_id: str = ""
 
     @property
     def payment_provider(self) -> Literal["stripe", "dev"]:

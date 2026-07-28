@@ -9,10 +9,15 @@ from app.db.session import get_sessionmaker
 from app.services.auth import (
     USER_COOKIE,
     consume_magic_link,
+    login_email,
+    login_google,
     login_options,
+    register_email,
     registration_options,
     request_magic_link,
+    require_owner,
     user_by_id,
+    user_public,
     verify_login,
     verify_registration,
 )
@@ -34,6 +39,18 @@ class CredentialIn(BaseModel):
     credential: dict[str, Any]
 
 
+class PasswordAuthIn(BaseModel):
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=8, max_length=128)
+    name: str | None = Field(default=None, max_length=80)
+
+
+class GoogleAuthIn(BaseModel):
+    credential: str | None = Field(default=None, max_length=4096)
+    email: str | None = Field(default=None, max_length=254)
+    name: str | None = Field(default=None, max_length=80)
+
+
 def _set_user(response: Response, token: str) -> None:
     settings = get_settings()
     response.set_cookie(
@@ -45,6 +62,40 @@ def _set_user(response: Response, token: str) -> None:
         secure=settings.cookie_secure,
         path="/",
     )
+
+
+@router.post("/auth/register")
+async def post_register(body: PasswordAuthIn) -> Response:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        user, token = await register_email(
+            session, body.email, body.password, body.name or body.email.split("@", 1)[0]
+        )
+    response = JSONResponse(user_public(user))
+    _set_user(response, token)
+    return response
+
+
+@router.post("/auth/login")
+async def post_login(body: PasswordAuthIn) -> Response:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        user, token = await login_email(session, body.email, body.password)
+    response = JSONResponse(user_public(user))
+    _set_user(response, token)
+    return response
+
+
+@router.post("/auth/google")
+async def post_google(body: GoogleAuthIn) -> Response:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        user, token = await login_google(
+            session, credential=body.credential, email=body.email, name=body.name
+        )
+    response = JSONResponse(user_public(user))
+    _set_user(response, token)
+    return response
 
 
 @router.post("/auth/magic-link")
@@ -59,7 +110,7 @@ async def post_consume(body: TokenIn) -> Response:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         user, token = await consume_magic_link(session, body.token)
-    response = JSONResponse({"email": user.email, "name": user.name})
+    response = JSONResponse(user_public(user))
     _set_user(response, token)
     return response
 
@@ -76,7 +127,24 @@ async def get_me(request: Request) -> dict[str, str]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         user = await user_by_id(session, getattr(request.state, "user_id", None))
-    return {"email": user.email, "name": user.name}
+    return user_public(user)
+
+
+@router.get("/owner/overview")
+async def get_owner_overview(request: Request) -> dict[str, object]:
+    from app.services.tracking import kds_orders
+
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        user = await require_owner(session, getattr(request.state, "user_id", None))
+        queue = await kds_orders(session, "riverside")
+    open_count = sum(1 for ticket in queue if ticket.get("status") != "collected")
+    return {
+        "owner": user_public(user),
+        "store": "riverside",
+        "open_orders": open_count,
+        "queue": queue[:12],
+    }
 
 
 @router.get("/me/orders")
@@ -132,6 +200,6 @@ async def post_passkey_login(body: CredentialIn) -> Response:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         user, token = await verify_login(session, body.credential)
-    response = JSONResponse({"email": user.email, "name": user.name})
+    response = JSONResponse(user_public(user))
     _set_user(response, token)
     return response

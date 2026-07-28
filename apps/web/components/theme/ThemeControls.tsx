@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTier } from "@/app/providers/MotionProvider";
+import { AirflowToggle } from "@/components/motion/could/Airflow";
 import {
   THEME_STORAGE_KEY,
   greetingFor,
@@ -74,6 +75,9 @@ export function ThemeControls() {
         <ThemeButton pressed={theme?.source === "manual" && theme.theme === "dark"} onClick={() => choose("dark")}>
           Dark
         </ThemeButton>
+      </div>
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Atmosphere">
+        <AirflowToggle />
       </div>
       <p className="font-mono text-xs tracking-wide text-muted uppercase">Motion {tier}</p>
     </div>

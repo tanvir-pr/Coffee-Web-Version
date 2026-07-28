@@ -43,9 +43,9 @@ export default function RewardsPage() {
         <div className="flow-empty menu-product-card">
           <p className="font-display text-3xl font-semibold tracking-tight">Ten stamps. One free drink.</p>
           <p className="mt-3 font-sans text-base leading-7 text-muted">
-            Beans climb when your order is collected. Sign in with a magic link — no password.
+            Beans climb when your order is collected. Sign in with email or Google.
           </p>
-          <Link href="/account" className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
+          <Link href="/login" className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
             Sign in for stamps
           </Link>
         </div>

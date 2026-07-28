@@ -4,6 +4,7 @@ import Link from "next/link";
 import { m } from "motion/react";
 import { useEffect, useRef, useState, type ComponentType, type ReactNode, type RefObject } from "react";
 import { GlassSurface } from "@/components/glass/GlassSurface";
+import { AirflowField } from "@/components/motion/could/Airflow";
 import { HeroArt } from "@/components/motion/hero/HeroArt";
 import { HERO_CARDS } from "@/lib/motion/hero";
 import { detectTier, type MotionTier } from "@/lib/motion/tier";
@@ -39,8 +40,11 @@ export function HeroShell({ children, debug }: { children: ReactNode; debug: boo
       data-state={tier === "static" ? "released" : "pinned"}
       aria-label="Coffee pour"
     >
+      <AirflowField className="hero-airflow" intro="hero" />
       <div className="hero-layout">
-        <GlassSurface className="hero-copy w-full px-8 py-10 sm:px-12 sm:py-12">{children}</GlassSurface>
+        <GlassSurface className="hero-copy hero-copy-xl w-full">
+          {children}
+        </GlassSurface>
         <div className="hero-stage-art">
           {playing && Pour ? <Pour root={root} tier={tier} debug={debug} /> : <HeroArt pose={tier === "static" ? "served" : "empty"} />}
         </div>

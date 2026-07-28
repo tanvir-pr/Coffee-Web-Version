@@ -156,6 +156,9 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(254), unique=True)
     name: Mapped[str] = mapped_column(String(80))
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    auth_provider: Mapped[str] = mapped_column(String(24), default="email")
+    role: Mapped[str] = mapped_column(String(16), default="customer")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

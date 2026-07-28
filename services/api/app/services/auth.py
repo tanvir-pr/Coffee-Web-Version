@@ -1,9 +1,15 @@
+import base64
 import hashlib
+import hmac
+import json
 import re
 import secrets
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from urllib.error import HTTPError, URLError
+from urllib.request import Request as UrlRequest
+from urllib.request import urlopen
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,6 +31,11 @@ USER_COOKIE = "crema_user"
 LINK_MINUTES = 15
 CHALLENGE_MINUTES = 5
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+PASSWORD_MIN = 8
+SCRYPT_N = 2**14
+SCRYPT_R = 8
+SCRYPT_P = 1
+SCRYPT_DKLEN = 64
 
 
 def normalize_email(value: str) -> str:
@@ -34,8 +45,169 @@ def normalize_email(value: str) -> str:
     return email
 
 
+def normalize_name(value: str) -> str:
+    name = " ".join(value.split())
+    if not name or len(name) > 80:
+        raise Problem(422, "NAME_INVALID", "Name invalid", "Enter a name up to 80 characters.")
+    return name
+
+
+def normalize_password(value: str) -> str:
+    if len(value) < PASSWORD_MIN or len(value) > 128:
+        raise Problem(
+            422,
+            "PASSWORD_INVALID",
+            "Password invalid",
+            f"Use a password of at least {PASSWORD_MIN} characters.",
+        )
+    return value
+
+
 def _hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
+
+
+def hash_password(password: str) -> str:
+    salt = secrets.token_bytes(16)
+    digest = hashlib.scrypt(
+        password.encode("utf-8"),
+        salt=salt,
+        n=SCRYPT_N,
+        r=SCRYPT_R,
+        p=SCRYPT_P,
+        dklen=SCRYPT_DKLEN,
+    )
+    return "scrypt$" + base64.b64encode(salt).decode() + "$" + base64.b64encode(digest).decode()
+
+
+def verify_password(password: str, encoded: str | None) -> bool:
+    if not encoded or not encoded.startswith("scrypt$"):
+        return False
+    try:
+        _, salt_b64, digest_b64 = encoded.split("$", 2)
+        salt = base64.b64decode(salt_b64.encode())
+        expected = base64.b64decode(digest_b64.encode())
+    except (ValueError, TypeError):
+        return False
+    actual = hashlib.scrypt(
+        password.encode("utf-8"),
+        salt=salt,
+        n=SCRYPT_N,
+        r=SCRYPT_R,
+        p=SCRYPT_P,
+        dklen=len(expected),
+    )
+    return hmac.compare_digest(actual, expected)
+
+
+def _session_token(user: User) -> str:
+    return sign_guest_id(str(user.id), get_settings().jwt_secret)
+
+
+async def register_email(
+    session: AsyncSession, email: str, password: str, name: str
+) -> tuple[User, str]:
+    address = normalize_email(email)
+    secret = normalize_password(password)
+    display = normalize_name(name)
+    existing = await session.scalar(select(User).where(User.email == address))
+    if existing is not None:
+        raise Problem(409, "EMAIL_TAKEN", "Email taken", "That email already has an account.")
+    user = User(
+        id=uuid.uuid4(),
+        email=address,
+        name=display,
+        password_hash=hash_password(secret),
+        auth_provider="email",
+    )
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return user, _session_token(user)
+
+
+async def login_email(session: AsyncSession, email: str, password: str) -> tuple[User, str]:
+    address = normalize_email(email)
+    secret = normalize_password(password)
+    user = await session.scalar(select(User).where(User.email == address))
+    if user is None or not verify_password(secret, user.password_hash):
+        raise Problem(401, "AUTH_FAILED", "Sign-in failed", "Email or password is incorrect.")
+    return user, _session_token(user)
+
+
+async def login_google(
+    session: AsyncSession,
+    *,
+    credential: str | None = None,
+    email: str | None = None,
+    name: str | None = None,
+) -> tuple[User, str]:
+    settings = get_settings()
+    if credential:
+        payload = _verify_google_id_token(credential, settings.google_client_id)
+        address = normalize_email(str(payload.get("email", "")))
+        display = normalize_name(str(payload.get("name") or address.split("@", 1)[0]))
+    elif settings.env == "local" and email:
+        address = normalize_email(email)
+        display = normalize_name(name or address.split("@", 1)[0])
+    else:
+        raise Problem(
+            400,
+            "GOOGLE_REQUIRED",
+            "Google sign-in unavailable",
+            "Google sign-in needs a credential.",
+        )
+    user = await session.scalar(select(User).where(User.email == address))
+    if user is None:
+        user = User(
+            id=uuid.uuid4(),
+            email=address,
+            name=display,
+            password_hash=None,
+            auth_provider="google",
+        )
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+    elif user.auth_provider != "google":
+        user.auth_provider = "google"
+        if not user.name:
+            user.name = display
+        await session.commit()
+        await session.refresh(user)
+    return user, _session_token(user)
+
+
+def _verify_google_id_token(credential: str, client_id: str) -> dict[str, Any]:
+    if not client_id:
+        raise Problem(
+            503,
+            "GOOGLE_CONFIG",
+            "Google not configured",
+            "Set GOOGLE_CLIENT_ID to enable Google sign-in.",
+        )
+    try:
+        with urlopen(
+            UrlRequest(
+                f"https://oauth2.googleapis.com/tokeninfo?id_token={credential}",
+                method="GET",
+            ),
+            timeout=8,
+        ) as response:
+            payload = json.loads(response.read().decode())
+    except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
+        raise Problem(
+            401, "GOOGLE_INVALID", "Google rejected", "That Google sign-in could not be verified."
+        ) from exc
+    if payload.get("aud") != client_id or payload.get("email_verified") not in (True, "true"):
+        raise Problem(
+            401, "GOOGLE_INVALID", "Google rejected", "That Google sign-in could not be verified."
+        )
+    if not isinstance(payload, dict):
+        raise Problem(
+            401, "GOOGLE_INVALID", "Google rejected", "That Google sign-in could not be verified."
+        )
+    return payload
 
 
 async def request_magic_link(session: AsyncSession, email: str) -> dict[str, object]:
@@ -81,6 +253,66 @@ async def user_by_id(session: AsyncSession, user_id: str | None) -> User:
     user = await session.get(User, parsed)
     if user is None:
         raise Problem(401, "AUTH_REQUIRED", "Sign in required", "Sign in to continue.")
+    return user
+
+
+def user_public(user: User) -> dict[str, str]:
+    role = user.role if user.role in {"customer", "owner"} else "customer"
+    return {"email": user.email, "name": user.name, "role": role}
+
+
+DEMO_ACCOUNTS = (
+    {
+        "email": "owner@crema.local",
+        "name": "Crema Owner",
+        "password": "CremaOwner1!",
+        "role": "owner",
+    },
+    {
+        "email": "guest@crema.local",
+        "name": "Maya Guest",
+        "password": "CremaGuest1!",
+        "role": "customer",
+    },
+)
+
+
+async def ensure_demo_accounts(session: AsyncSession) -> None:
+    """Local demo logins for customer + owner audits."""
+    if get_settings().env != "local":
+        return
+    changed = False
+    for account in DEMO_ACCOUNTS:
+        email = str(account["email"])
+        user = await session.scalar(select(User).where(User.email == email))
+        if user is None:
+            session.add(
+                User(
+                    id=uuid.uuid4(),
+                    email=email,
+                    name=str(account["name"]),
+                    password_hash=hash_password(str(account["password"])),
+                    auth_provider="email",
+                    role=str(account["role"]),
+                )
+            )
+            changed = True
+            continue
+        if user.role != account["role"]:
+            user.role = str(account["role"])
+            changed = True
+        if not user.password_hash:
+            user.password_hash = hash_password(str(account["password"]))
+            user.auth_provider = "email"
+            changed = True
+    if changed:
+        await session.commit()
+
+
+async def require_owner(session: AsyncSession, user_id: str | None) -> User:
+    user = await user_by_id(session, user_id)
+    if user.role != "owner":
+        raise Problem(403, "OWNER_REQUIRED", "Owner only", "This area is for Crema owners.")
     return user
 
 

@@ -25,7 +25,7 @@ export function ProductDetail({
     }
     return [];
   }, [menu, product.id]);
-  const sizes = Object.entries(product.prices);
+  const sizes = Object.entries(product.prices ?? {});
 
   return (
     <main className="pdp-shell">

@@ -74,7 +74,7 @@ export function Customizer({ product }: { product: MenuProduct }) {
   }
 
   return (
-    <div className="cup-builder glass-surface flex max-h-[calc(100dvh-6.5rem)] w-full min-w-0 max-w-4xl flex-col">
+    <div className="cup-builder glass-surface flex max-h-[calc(100dvh-6.5rem)] w-full min-w-0 max-w-4xl flex-col" data-glass="filter">
       <div className="flex min-w-0 items-start justify-between gap-3 px-5 pt-5 sm:px-7">
         <div className="min-w-0">
           <p className="font-sans text-sm tracking-[0.18em] text-muted uppercase">Build</p>

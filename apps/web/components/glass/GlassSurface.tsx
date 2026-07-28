@@ -24,10 +24,10 @@ export function GlassSurface({
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  const mode: GlassMode = tier === "lite" ? "lite" : canBlur ? "filter" : "solid";
+  const mode: GlassMode = tier === "static" ? "solid" : tier === "lite" ? "lite" : canBlur ? "filter" : "solid";
 
   return (
-    <div data-glass={mode} className={`glass-surface ${className}`}>
+    <div data-glass={mode} className={`glass-surface glass-live ${className}`}>
       {children}
     </div>
   );

@@ -22,6 +22,7 @@ from app.core.errors import Problem, http_exception_handler, problem_handler, pr
 from app.core.logging import configure_logging
 from app.core.middleware import GuestSessionMiddleware, RequestIdMiddleware
 from app.db.session import get_sessionmaker
+from app.services.auth import ensure_demo_accounts
 from app.services.catalog import seed_if_empty
 from app.services.places import ensure_store_profile
 
@@ -34,6 +35,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
             async with sessionmaker() as session:
                 await seed_if_empty(session)
                 await ensure_store_profile(session)
+                await ensure_demo_accounts(session)
         except Exception:
             structlog.get_logger().warning("catalog_seed_skipped")
     yield

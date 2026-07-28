@@ -11,7 +11,7 @@ export function useLoaderVisibility(active: boolean): boolean {
 
   useEffect(() => {
     if (active) {
-      if (visibleRef.current) return;
+      if (visibleRef.current) return undefined;
       const timer = window.setTimeout(() => {
         visibleRef.current = true;
         shownAt.current = performance.now();
@@ -19,7 +19,7 @@ export function useLoaderVisibility(active: boolean): boolean {
       }, LOADER_DELAY_MS);
       return () => window.clearTimeout(timer);
     }
-    if (!visibleRef.current) return;
+    if (!visibleRef.current) return undefined;
     const wait = Math.max(0, LOADER_MIN_MS - (performance.now() - shownAt.current));
     const timer = window.setTimeout(() => {
       visibleRef.current = false;

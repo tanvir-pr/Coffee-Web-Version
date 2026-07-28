@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CoffeeGrove } from "@/components/home/CoffeeGrove";
 import { SectionReveal } from "@/components/motion/should/SectionReveal";
 import { DAYPART_COPY } from "@/lib/motion/reveal";
 import type { Daypart } from "@/lib/menu/menu";
@@ -10,6 +11,17 @@ export function HomeBelow({ daypart }: { daypart: Daypart | null }) {
 
   return (
     <div className="home-below">
+      <SectionReveal className="home-band home-grove-band">
+        <p className="font-sans text-sm tracking-[0.18em] text-muted uppercase">From the grove</p>
+        <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+          Cherry trees before the crema.
+        </h2>
+        <p className="mt-4 max-w-xl font-sans text-base leading-7 text-muted">
+          Watch the grove breathe — cherries fall, beans drift, and a fresh cup steams in the warm air.
+        </p>
+        <CoffeeGrove />
+      </SectionReveal>
+
       <section className="home-visits" aria-label="Ways to visit">
         <article className="visit-card">
           <p className="visit-kicker">Counter</p>
@@ -84,7 +96,7 @@ export function HomeBelow({ daypart }: { daypart: Daypart | null }) {
           Ten stamps. One free drink.
         </h2>
         <p className="mt-4 max-w-xl font-sans text-base leading-7 text-muted">
-          Beans climb with every collected cup. Sign in with a magic link — no password.
+          Beans climb with every collected cup. Sign in with email or Google.
         </p>
         <Link href="/rewards" className="mt-6 inline-flex rounded-full px-5 py-3 font-sans text-sm text-foreground underline-offset-4 hover:underline">
           See your stamp card

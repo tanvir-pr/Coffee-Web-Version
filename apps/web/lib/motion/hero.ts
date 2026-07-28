@@ -76,9 +76,16 @@ export function waveAmp(progress: number, velocity: number): number {
 
 export function heroWavePath(amp: number, phase: number): string {
   const a = clampWave(amp);
-  const crest = Math.sin(phase) * a;
-  const trough = Math.sin(phase + 1.4) * a * 0.65;
-  return `M0 0 Q30 ${crest} 60 ${trough} T120 0 V170 H0 Z`;
+  const y = (t: number) =>
+    Math.sin(phase + t * Math.PI) * a +
+    Math.sin(phase * 1.7 + t * Math.PI * 2.2) * a * 0.42 +
+    Math.sin(phase * 0.6 + t * Math.PI * 3.3) * a * 0.18;
+  return [
+    `M0 ${y(0).toFixed(2)}`,
+    `C24 ${y(0.2).toFixed(2)} 42 ${y(0.35).toFixed(2)} 60 ${y(0.5).toFixed(2)}`,
+    `C78 ${y(0.65).toFixed(2)} 96 ${y(0.82).toFixed(2)} 120 ${y(1).toFixed(2)}`,
+    "V170 H0 Z",
+  ].join(" ");
 }
 
 type TimelineTarget = {

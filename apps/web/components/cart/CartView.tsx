@@ -7,19 +7,21 @@ import { SteamTrail } from "@/components/motion/could/SteamTrail";
 import { useLoaderVisibility } from "@/components/motion/PendingLoader";
 import { fetchCart, publishCart, removeCartItem, type Cart } from "@/lib/cart/api";
 
-export function CartView() {
-  const [cart, setCart] = useState<Cart | null>(null);
+export function CartView({ initial }: { initial?: Cart }) {
+  const [cart, setCart] = useState<Cart | null>(initial ?? null);
   const [error, setError] = useState("");
   const showLoader = useLoaderVisibility(cart === null);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      void fetchCart().then((next) => {
-        setCart(next);
-        publishCart(next);
-      });
+    let alive = true;
+    void fetchCart().then((next) => {
+      if (!alive) return;
+      setCart(next);
+      publishCart(next);
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      alive = false;
+    };
   }, []);
 
   async function remove(id: string) {
@@ -39,8 +41,8 @@ export function CartView() {
         Menu
       </Link>
       <h1 className="font-display text-5xl font-semibold tracking-tight">Cart</h1>
-      {showLoader ? <LatteLoader label="Loading the cart" /> : null}
-      {cart === null || showLoader ? null : cart.items.length === 0 ? (
+      {showLoader && cart === null ? <LatteLoader label="Loading the cart" /> : null}
+      {cart === null ? null : cart.items.length === 0 ? (
         <div className="cart-empty steam-zone relative">
           <SteamTrail />
           <span className="crema-mark" aria-hidden="true" />
@@ -72,8 +74,8 @@ export function CartView() {
           ))}
         </ul>
       )}
-      {cart && !showLoader ? <p className="font-mono text-3xl">${cart.total}</p> : null}
-      {cart && !showLoader && cart.items.length > 0 ? (
+      {cart ? <p className="font-mono text-3xl">${cart.total}</p> : null}
+      {cart && cart.items.length > 0 ? (
         <Link href="/checkout" className="inline-flex w-fit rounded-full bg-primary px-5 py-3 font-sans text-sm text-on-primary">
           Checkout
         </Link>
